@@ -46,7 +46,11 @@ extern NSString * const MMPDataAccessDidSaveNotification;
 - (NSUInteger)countObjectsOfEntity:(Class)entityClass;
 - (NSUInteger)countObjectsOfEntity:(Class)entityClass havingValue:(id)value forColumn:(NSString *)column;
 
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass orderBy:(NSString *)columnName;
+- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
+                                                          orderBy:(NSString *)columnName;
+- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
+                                                          orderBy:(NSString *)columnName
+                                               sectionNameKeyPath:(NSString *)sectionNameKeyPath;
 - (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
                                                       havingValue:(id)value
                                                         forColumn:(NSString *)column
@@ -58,5 +62,9 @@ extern NSString * const MMPDataAccessDidSaveNotification;
                                                     withPredicate:(NSPredicate *)predicate
                                                           orderBy:(NSArray *)sortDescriptors
                                                sectionNameKeyPath:(NSString *)sectionNameKeyPath;
-
+- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
+                                                    withPredicate:(NSPredicate *)predicate
+                                                          orderBy:(NSArray *)sortDescriptors
+                                               sectionNameKeyPath:(NSString *)sectionNameKeyPath
+                                                        cacheName:(NSString *)cacheName;
 @end

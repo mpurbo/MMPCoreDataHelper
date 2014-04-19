@@ -22,6 +22,10 @@
 		A91B851B1901051B005BE5B5 /* CoreDataHelperExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A91B851A1901051B005BE5B5 /* CoreDataHelperExampleTests.m */; };
 		A91B85251901053F005BE5B5 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A91B85241901053F005BE5B5 /* CoreData.framework */; };
 		A91B852819010648005BE5B5 /* MMPTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A91B852719010648005BE5B5 /* MMPTableViewController.m */; };
+		A91B852E190109A9005BE5B5 /* MMPCoreDataHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A91B852C190109A9005BE5B5 /* MMPCoreDataHelper.m */; };
+		A91B853219010A31005BE5B5 /* CoreDataHelperExample.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A91B853019010A31005BE5B5 /* CoreDataHelperExample.xcdatamodeld */; };
+		A91B853819012C2C005BE5B5 /* MMPArtist.m in Sources */ = {isa = PBXBuildFile; fileRef = A91B853719012C2C005BE5B5 /* MMPArtist.m */; };
+		A91B853B19012C2D005BE5B5 /* MMPAlbum.m in Sources */ = {isa = PBXBuildFile; fileRef = A91B853A19012C2D005BE5B5 /* MMPAlbum.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +59,13 @@
 		A91B85241901053F005BE5B5 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		A91B852619010648005BE5B5 /* MMPTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMPTableViewController.h; sourceTree = "<group>"; };
 		A91B852719010648005BE5B5 /* MMPTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMPTableViewController.m; sourceTree = "<group>"; };
+		A91B852B190109A9005BE5B5 /* MMPCoreDataHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMPCoreDataHelper.h; sourceTree = "<group>"; };
+		A91B852C190109A9005BE5B5 /* MMPCoreDataHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMPCoreDataHelper.m; sourceTree = "<group>"; };
+		A91B853119010A31005BE5B5 /* CoreDataHelperExample.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataHelperExample.xcdatamodel; sourceTree = "<group>"; };
+		A91B853619012C2C005BE5B5 /* MMPArtist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMPArtist.h; sourceTree = "<group>"; };
+		A91B853719012C2C005BE5B5 /* MMPArtist.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMPArtist.m; sourceTree = "<group>"; };
+		A91B853919012C2D005BE5B5 /* MMPAlbum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMPAlbum.h; sourceTree = "<group>"; };
+		A91B853A19012C2D005BE5B5 /* MMPAlbum.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMPAlbum.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,6 +127,8 @@
 		A91B84F51901051B005BE5B5 /* CoreDataHelperExample */ = {
 			isa = PBXGroup;
 			children = (
+				A91B8529190109A9005BE5B5 /* MMPCoreDataHelper */,
+				A91B852F19010A0F005BE5B5 /* Model */,
 				A91B84FE1901051B005BE5B5 /* MMPAppDelegate.h */,
 				A91B84FF1901051B005BE5B5 /* MMPAppDelegate.m */,
 				A91B85011901051B005BE5B5 /* Main.storyboard */,
@@ -154,6 +167,28 @@
 				A91B85171901051B005BE5B5 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		A91B8529190109A9005BE5B5 /* MMPCoreDataHelper */ = {
+			isa = PBXGroup;
+			children = (
+				A91B852B190109A9005BE5B5 /* MMPCoreDataHelper.h */,
+				A91B852C190109A9005BE5B5 /* MMPCoreDataHelper.m */,
+			);
+			name = MMPCoreDataHelper;
+			path = ../../../MMPCoreDataHelper;
+			sourceTree = "<group>";
+		};
+		A91B852F19010A0F005BE5B5 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				A91B853019010A31005BE5B5 /* CoreDataHelperExample.xcdatamodeld */,
+				A91B853919012C2D005BE5B5 /* MMPAlbum.h */,
+				A91B853A19012C2D005BE5B5 /* MMPAlbum.m */,
+				A91B853619012C2C005BE5B5 /* MMPArtist.h */,
+				A91B853719012C2C005BE5B5 /* MMPArtist.m */,
+			);
+			name = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -257,6 +292,10 @@
 				A91B852819010648005BE5B5 /* MMPTableViewController.m in Sources */,
 				A91B84FC1901051B005BE5B5 /* main.m in Sources */,
 				A91B85001901051B005BE5B5 /* MMPAppDelegate.m in Sources */,
+				A91B852E190109A9005BE5B5 /* MMPCoreDataHelper.m in Sources */,
+				A91B853219010A31005BE5B5 /* CoreDataHelperExample.xcdatamodeld in Sources */,
+				A91B853B19012C2D005BE5B5 /* MMPAlbum.m in Sources */,
+				A91B853819012C2C005BE5B5 /* MMPArtist.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -471,6 +510,19 @@
 			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		A91B853019010A31005BE5B5 /* CoreDataHelperExample.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				A91B853119010A31005BE5B5 /* CoreDataHelperExample.xcdatamodel */,
+			);
+			currentVersion = A91B853119010A31005BE5B5 /* CoreDataHelperExample.xcdatamodel */;
+			path = CoreDataHelperExample.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = A91B84E41901051B005BE5B5 /* Project object */;
 }

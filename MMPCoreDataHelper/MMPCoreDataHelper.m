@@ -512,21 +512,20 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
 
 - (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass orderBy:(NSString *)columnName
 {
-    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
-    
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:NSStringFromClass(entityClass)
-                                              inManagedObjectContext:managedObjectContext];
-    [fetchRequest setEntity:entity];
-    
-    if (columnName != nil) {
-        [fetchRequest setSortDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:columnName ascending:YES]]];
-    }
-    
-    return [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-                                               managedObjectContext:managedObjectContext
-                                                 sectionNameKeyPath:nil
-                                                          cacheName:[NSString stringWithFormat:@"all-%@-%@", NSStringFromClass(entityClass), columnName]];
+    return [self fetchedResultsControllerForEntity:entityClass
+                                     withPredicate:nil
+                                           orderBy:columnName ? @[[NSSortDescriptor sortDescriptorWithKey:columnName ascending:YES]] : nil
+                                sectionNameKeyPath:nil
+                                         cacheName:[NSString stringWithFormat:@"all-%@-%@", NSStringFromClass(entityClass), columnName]];
+}
+
+- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass orderBy:(NSString *)columnName sectionNameKeyPath:(NSString *)sectionNameKeyPath
+{
+    return [self fetchedResultsControllerForEntity:entityClass
+                                     withPredicate:nil
+                                           orderBy:columnName ? @[[NSSortDescriptor sortDescriptorWithKey:columnName ascending:YES]] : nil
+                                sectionNameKeyPath:sectionNameKeyPath
+                                         cacheName:[NSString stringWithFormat:@"all-%@-%@-%@", NSStringFromClass(entityClass), columnName, sectionNameKeyPath]];
 }
 
 - (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
@@ -534,31 +533,16 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
                                                         forColumn:(NSString *)column
                                                           orderBy:(NSString *)columnName
 {
-    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
-    
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    NSEntityDescription *entity = [NSEntityDescription entityForName:NSStringFromClass(entityClass)
-                                              inManagedObjectContext:managedObjectContext];
-    [fetchRequest setEntity:entity];
-    
-    if (columnName != nil) {
-        [fetchRequest setSortDescriptors:[NSArray arrayWithObject:[NSSortDescriptor sortDescriptorWithKey:columnName ascending:YES]]];
-    }
-    
-    NSString *predicateFormat = [NSString stringWithFormat:@"%@ == %%@", column];
-    [fetchRequest setPredicate:[NSPredicate predicateWithFormat:predicateFormat, value]];
-    
-    return [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
-                                               managedObjectContext:managedObjectContext
-                                                 sectionNameKeyPath:nil
-                                                          cacheName:[NSString stringWithFormat:@"filt1-%@-%@=%@-%@",
-                                                                     NSStringFromClass(entityClass),
-                                                                     column,
-                                                                     value,
-                                                                     columnName]];
+    return [self fetchedResultsControllerForEntity:entityClass
+                                     withPredicate:(column && value) ? [NSPredicate predicateWithFormat:[NSString stringWithFormat:@"%@ == %%@", column], value] : nil
+                                           orderBy:columnName ? @[[NSSortDescriptor sortDescriptorWithKey:columnName ascending:YES]] : nil
+                                sectionNameKeyPath:nil
+                                         cacheName:[NSString stringWithFormat:@"filt1-%@-%@=%@-%@",
+                                                    NSStringFromClass(entityClass),
+                                                    column,
+                                                    value,
+                                                    columnName]];
 }
-
-
 
 - (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
                                                     withPredicate:(NSPredicate *)predicate
@@ -567,13 +551,27 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     return [self fetchedResultsControllerForEntity:entityClass
                                      withPredicate:predicate
                                            orderBy:sortDescriptors
-                                sectionNameKeyPath:nil];
+                                sectionNameKeyPath:nil
+                                         cacheName:nil];
 }
 
 - (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
                                                     withPredicate:(NSPredicate *)predicate
                                                           orderBy:(NSArray *)sortDescriptors
                                                sectionNameKeyPath:(NSString *)sectionNameKeyPath
+{
+    return [self fetchedResultsControllerForEntity:entityClass
+                                     withPredicate:predicate
+                                           orderBy:sortDescriptors
+                                sectionNameKeyPath:sectionNameKeyPath
+                                         cacheName:nil];
+}
+
+- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
+                                                    withPredicate:(NSPredicate *)predicate
+                                                          orderBy:(NSArray *)sortDescriptors
+                                               sectionNameKeyPath:(NSString *)sectionNameKeyPath
+                                                        cacheName:(NSString *)cacheName
 {
     NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
     
@@ -590,7 +588,7 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     return [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
                                                managedObjectContext:managedObjectContext
                                                  sectionNameKeyPath:sectionNameKeyPath
-                                                          cacheName:nil];
+                                                          cacheName:cacheName];
 }
 
 @end

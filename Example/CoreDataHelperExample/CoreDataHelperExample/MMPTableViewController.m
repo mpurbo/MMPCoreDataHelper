@@ -7,8 +7,13 @@
 //
 
 #import "MMPTableViewController.h"
+#import "MMPCoreDataHelper.h"
+#import "MMPArtist.h"
+#import "MMPAlbum.h"
 
-@interface MMPTableViewController ()
+@interface MMPTableViewController ()<NSFetchedResultsControllerDelegate>
+
+@property (strong, nonatomic) NSFetchedResultsController *fetchedResultsController;
 
 @end
 
@@ -23,15 +28,63 @@
     return self;
 }
 
+- (void)initDatabase
+{
+    // the singleton instance of MMPCoreDataHelper
+    MMPCoreDataHelper *db = [MMPCoreDataHelper instance];
+    
+    MMPArtist *artist = (MMPArtist *)[db createObjectOfEntity:[MMPArtist class]];
+    artist.id = @"1";
+    artist.name = @"Daft Punk";
+    
+    MMPAlbum *album = (MMPAlbum *)[db createObjectOfEntity:[MMPAlbum class]];
+    album.id = @"1-1";
+    album.name = @"Homework";
+    album.artist = artist;
+    
+    album = (MMPAlbum *)[db createObjectOfEntity:[MMPAlbum class]];
+    album.id = @"1-2";
+    album.name = @"Discovery";
+    album.artist = artist;
+    
+    artist = (MMPArtist *)[db createObjectOfEntity:[MMPArtist class]];
+    artist.id = @"2";
+    artist.name = @"Pink Floyd";
+    
+    album = (MMPAlbum *)[db createObjectOfEntity:[MMPAlbum class]];
+    album.id = @"2-1";
+    album.name = @"Animal";
+    album.artist = artist;
+    
+    album = (MMPAlbum *)[db createObjectOfEntity:[MMPAlbum class]];
+    album.id = @"2-2";
+    album.name = @"The Wall";
+    album.artist = artist;
+
+    [db save];
+    
+    NSLog(@"Database initialized, %lu artists created", (unsigned long)[db objectsOfEntity:[MMPArtist class]].count);
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
+    // the singleton instance of MMPCoreDataHelper
+    MMPCoreDataHelper *db = [MMPCoreDataHelper instance];
     
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    // check if the data is already created
+    NSArray *artists = [db objectsOfEntity:[MMPArtist class]];
+    if (!artists || artists.count == 0) {
+        [self initDatabase];
+    } else {
+        NSLog(@"Database ready");
+    }
+    
+    NSError *error;
+	if (![[self fetchedResultsController] performFetch:&error]) {
+		NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+	}
 }
 
 - (void)didReceiveMemoryWarning
@@ -44,76 +97,50 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-#warning Potentially incomplete method implementation.
-    // Return the number of sections.
-    return 0;
+    return [_fetchedResultsController sections].count;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    id <NSFetchedResultsSectionInfo> sectionInfo = [[_fetchedResultsController sections] objectAtIndex:section];
+    return [sectionInfo name];
+}
+
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView
+{
+    return [_fetchedResultsController sectionIndexTitles];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-#warning Incomplete method implementation.
-    // Return the number of rows in the section.
-    return 0;
+    id sectionInfo = [[_fetchedResultsController sections] objectAtIndex:section];
+    return [sectionInfo numberOfObjects];
 }
 
-/*
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:<#@"reuseIdentifier"#> forIndexPath:indexPath];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
     
-    // Configure the cell...
+    MMPAlbum *album = [_fetchedResultsController objectAtIndexPath:indexPath];
+    cell.textLabel.text = album.name;
+    cell.detailTextLabel.text = album.artist.name;
     
     return cell;
 }
-*/
 
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
+- (NSFetchedResultsController *)fetchedResultsController {
+    
+    if (_fetchedResultsController != nil) {
+        return _fetchedResultsController;
+    }
+    
+    self.fetchedResultsController = [[MMPCoreDataHelper instance] fetchedResultsControllerForEntity:[MMPAlbum class]
+                                                                                            orderBy:@"artist.name"
+                                                                                 sectionNameKeyPath:@"artist.name"];
+    _fetchedResultsController.delegate = self;
+    
+    return _fetchedResultsController;
+    
 }
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end
