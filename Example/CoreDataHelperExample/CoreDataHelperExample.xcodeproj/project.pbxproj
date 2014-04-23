@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4E2AEC09E2FA4649BBAB7AEA /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B49B157AF4B4FCE821066DA /* libPods.a */; };
 		A91B84F01901051B005BE5B5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A91B84EF1901051B005BE5B5 /* Foundation.framework */; };
 		A91B84F21901051B005BE5B5 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A91B84F11901051B005BE5B5 /* CoreGraphics.framework */; };
 		A91B84F41901051B005BE5B5 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A91B84F31901051B005BE5B5 /* UIKit.framework */; };
@@ -22,7 +23,6 @@
 		A91B851B1901051B005BE5B5 /* CoreDataHelperExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A91B851A1901051B005BE5B5 /* CoreDataHelperExampleTests.m */; };
 		A91B85251901053F005BE5B5 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A91B85241901053F005BE5B5 /* CoreData.framework */; };
 		A91B852819010648005BE5B5 /* MMPTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A91B852719010648005BE5B5 /* MMPTableViewController.m */; };
-		A91B852E190109A9005BE5B5 /* MMPCoreDataHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A91B852C190109A9005BE5B5 /* MMPCoreDataHelper.m */; };
 		A91B853219010A31005BE5B5 /* CoreDataHelperExample.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A91B853019010A31005BE5B5 /* CoreDataHelperExample.xcdatamodeld */; };
 		A91B853819012C2C005BE5B5 /* MMPArtist.m in Sources */ = {isa = PBXBuildFile; fileRef = A91B853719012C2C005BE5B5 /* MMPArtist.m */; };
 		A91B853B19012C2D005BE5B5 /* MMPAlbum.m in Sources */ = {isa = PBXBuildFile; fileRef = A91B853A19012C2D005BE5B5 /* MMPAlbum.m */; };
@@ -39,6 +39,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1B49B157AF4B4FCE821066DA /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		5C523534EF81458596EEF28A /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = "<group>"; };
 		A91B84EC1901051B005BE5B5 /* CoreDataHelperExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreDataHelperExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A91B84EF1901051B005BE5B5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		A91B84F11901051B005BE5B5 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -59,8 +61,6 @@
 		A91B85241901053F005BE5B5 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		A91B852619010648005BE5B5 /* MMPTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMPTableViewController.h; sourceTree = "<group>"; };
 		A91B852719010648005BE5B5 /* MMPTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMPTableViewController.m; sourceTree = "<group>"; };
-		A91B852B190109A9005BE5B5 /* MMPCoreDataHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMPCoreDataHelper.h; sourceTree = "<group>"; };
-		A91B852C190109A9005BE5B5 /* MMPCoreDataHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMPCoreDataHelper.m; sourceTree = "<group>"; };
 		A91B853119010A31005BE5B5 /* CoreDataHelperExample.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataHelperExample.xcdatamodel; sourceTree = "<group>"; };
 		A91B853619012C2C005BE5B5 /* MMPArtist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMPArtist.h; sourceTree = "<group>"; };
 		A91B853719012C2C005BE5B5 /* MMPArtist.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMPArtist.m; sourceTree = "<group>"; };
@@ -77,6 +77,7 @@
 				A91B84F21901051B005BE5B5 /* CoreGraphics.framework in Frameworks */,
 				A91B84F41901051B005BE5B5 /* UIKit.framework in Frameworks */,
 				A91B84F01901051B005BE5B5 /* Foundation.framework in Frameworks */,
+				4E2AEC09E2FA4649BBAB7AEA /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +101,7 @@
 				A91B85141901051B005BE5B5 /* CoreDataHelperExampleTests */,
 				A91B84EE1901051B005BE5B5 /* Frameworks */,
 				A91B84ED1901051B005BE5B5 /* Products */,
+				5C523534EF81458596EEF28A /* Pods.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -120,6 +122,7 @@
 				A91B84F11901051B005BE5B5 /* CoreGraphics.framework */,
 				A91B84F31901051B005BE5B5 /* UIKit.framework */,
 				A91B850E1901051B005BE5B5 /* XCTest.framework */,
+				1B49B157AF4B4FCE821066DA /* libPods.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -127,7 +130,6 @@
 		A91B84F51901051B005BE5B5 /* CoreDataHelperExample */ = {
 			isa = PBXGroup;
 			children = (
-				A91B8529190109A9005BE5B5 /* MMPCoreDataHelper */,
 				A91B852F19010A0F005BE5B5 /* Model */,
 				A91B84FE1901051B005BE5B5 /* MMPAppDelegate.h */,
 				A91B84FF1901051B005BE5B5 /* MMPAppDelegate.m */,
@@ -169,16 +171,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		A91B8529190109A9005BE5B5 /* MMPCoreDataHelper */ = {
-			isa = PBXGroup;
-			children = (
-				A91B852B190109A9005BE5B5 /* MMPCoreDataHelper.h */,
-				A91B852C190109A9005BE5B5 /* MMPCoreDataHelper.m */,
-			);
-			name = MMPCoreDataHelper;
-			path = ../../../MMPCoreDataHelper;
-			sourceTree = "<group>";
-		};
 		A91B852F19010A0F005BE5B5 /* Model */ = {
 			isa = PBXGroup;
 			children = (
@@ -198,9 +190,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A91B851E1901051B005BE5B5 /* Build configuration list for PBXNativeTarget "CoreDataHelperExample" */;
 			buildPhases = (
+				DFAD58974B76497CB0EA3752 /* Check Pods Manifest.lock */,
 				A91B84E81901051B005BE5B5 /* Sources */,
 				A91B84E91901051B005BE5B5 /* Frameworks */,
 				A91B84EA1901051B005BE5B5 /* Resources */,
+				2DB2291AA84C4EB38CCB5CBA /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -284,6 +278,39 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		2DB2291AA84C4EB38CCB5CBA /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DFAD58974B76497CB0EA3752 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		A91B84E81901051B005BE5B5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -292,7 +319,6 @@
 				A91B852819010648005BE5B5 /* MMPTableViewController.m in Sources */,
 				A91B84FC1901051B005BE5B5 /* main.m in Sources */,
 				A91B85001901051B005BE5B5 /* MMPAppDelegate.m in Sources */,
-				A91B852E190109A9005BE5B5 /* MMPCoreDataHelper.m in Sources */,
 				A91B853219010A31005BE5B5 /* CoreDataHelperExample.xcdatamodeld in Sources */,
 				A91B853B19012C2D005BE5B5 /* MMPAlbum.m in Sources */,
 				A91B853819012C2C005BE5B5 /* MMPArtist.m in Sources */,
@@ -417,6 +443,7 @@
 		};
 		A91B851F1901051B005BE5B5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5C523534EF81458596EEF28A /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -430,6 +457,7 @@
 		};
 		A91B85201901051B005BE5B5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5C523534EF81458596EEF28A /* Pods.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -500,6 +528,7 @@
 				A91B85201901051B005BE5B5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A91B85211901051B005BE5B5 /* Build configuration list for PBXNativeTarget "CoreDataHelperExampleTests" */ = {
 			isa = XCConfigurationList;
@@ -508,6 +537,7 @@
 				A91B85231901051B005BE5B5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 

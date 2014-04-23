@@ -1,7 +1,7 @@
 MMPCoreDataHelper
 =================
 
-A no-nonsense straightforward helper library providing wrapper functions for common CoreData tasks. Nothing hidden, no fancy DAO or active record, just a way to simplify plain old CoreData uses. 
+A no-nonsense straightforward helper library providing wrapper functions for common CoreData tasks. Nothing is hidden, no fancy DAO or active record, just a way to simplify plain old CoreData uses. 
 
 Features:
 * Thread-safe singleton instance easily accessible from anywhere. No more worrying whether a MOC belongs to the thread or not.

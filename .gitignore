@@ -1,14 +1,8 @@
-# OSX Noise
+# OS X
 .DS_Store
-profile
-*~
-*.lock
-*.DS_Store
-*.swp
-*.out
 
-# XCode
-ld/*
+# Xcode
+build/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -17,11 +11,11 @@ ld/*
 !default.mode2v3
 *.perspectivev3
 !default.perspectivev3
-!default.xcworkspace
 xcuserdata
+*.xccheckout
 profile
 *.moved-aside
 DerivedData
-
-Pods
+*.hmap
+*.ipa
 
