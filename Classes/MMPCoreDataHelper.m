@@ -1,8 +1,26 @@
 //
-//  MMPCoreDataHelper.m
+//  MMPCoreDataHelper.h
 //
-//  Created by Purbo Mohamad on 11/10/13.
-//  Copyright (c) 2013 purbo.org. All rights reserved.
+//  The MIT License (MIT)
+//  Copyright (c) 2014 Mamad Purbo, purbo.org
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
 //
 
 #import "MMPCoreDataHelper.h"
@@ -35,9 +53,9 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     return shared;
 }
 
-- (instancetype) initSingletonInstance
+- (instancetype)initSingletonInstance
 {
-    return [super init];
+     return [super init];
 }
 
 - (NSString *)appName
@@ -47,22 +65,28 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
 
 - (NSString *)databaseName
 {
-    if (_databaseName != nil) return _databaseName;
-    _databaseName = [[[self appName] stringByAppendingString:@".sqlite"] copy];
+    @synchronized(self) {
+        if (!_databaseName)
+            _databaseName = [[[self appName] stringByAppendingString:@".sqlite"] copy];
+    }
     return _databaseName;
 }
 
 - (NSString *)modelName {
-    if (_modelName != nil) return _modelName;
-    _modelName = [[self appName] copy];
+    @synchronized(self) {
+        if (!_modelName)
+            _modelName = [[self appName] copy];
+    }
     return _modelName;
 }
 
 - (NSManagedObjectModel *)managedObjectModel {
-    if (_managedObjectModel) return _managedObjectModel;
-    
-    NSURL *modelURL = [[NSBundle mainBundle] URLForResource:[self modelName] withExtension:@"momd"];
-    _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+    @synchronized(self) {
+        if (!_managedObjectModel) {
+            NSURL *modelURL = [[NSBundle mainBundle] URLForResource:[self modelName] withExtension:@"momd"];
+            _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
+        }
+    }
     return _managedObjectModel;
 }
 
@@ -130,28 +154,34 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     return coordinator;
 }
 
-- (NSPersistentStoreCoordinator *)persistentStoreCoordinator {
-    if (_persistentStoreCoordinator) return _persistentStoreCoordinator;
-    
-    _persistentStoreCoordinator = [self persistentStoreCoordinatorWithStoreType:NSSQLiteStoreType
-                                                                       storeURL:[self sqliteStoreURL]];
+- (NSPersistentStoreCoordinator *)persistentStoreCoordinator
+{
+    @synchronized(self) {
+        if (!_persistentStoreCoordinator)
+            _persistentStoreCoordinator = [self persistentStoreCoordinatorWithStoreType:NSSQLiteStoreType
+                                                                               storeURL:[self sqliteStoreURL]];
+    }
     return _persistentStoreCoordinator;
 }
 
 - (NSManagedObjectContext *)managedObjectContextForBackgroundWriter
 {
-    if (_managedObjectContextForBackgroundWriter == nil) {
-        _managedObjectContextForBackgroundWriter = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-        [_managedObjectContextForBackgroundWriter setPersistentStoreCoordinator:[self persistentStoreCoordinator]];
+    @synchronized(self) {
+        if (!_managedObjectContextForBackgroundWriter) {
+            _managedObjectContextForBackgroundWriter = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+            [_managedObjectContextForBackgroundWriter setPersistentStoreCoordinator:[self persistentStoreCoordinator]];
+        }
     }
     return _managedObjectContextForBackgroundWriter;
 }
 
 - (NSManagedObjectContext *)managedObjectContextForMainThread
 {
-    if (_managedObjectContextForMainThread == nil) {
-        _managedObjectContextForMainThread = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
-        _managedObjectContextForMainThread.parentContext = [self managedObjectContextForBackgroundWriter];
+    @synchronized(self) {
+        if (!_managedObjectContextForMainThread) {
+            _managedObjectContextForMainThread = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+            _managedObjectContextForMainThread.parentContext = [self managedObjectContextForBackgroundWriter];
+        }
     }
     return _managedObjectContextForMainThread;
 }
@@ -170,6 +200,7 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
         if (managedObjectContextForCurrentThread == nil) {
             managedObjectContextForCurrentThread = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
             managedObjectContextForCurrentThread.parentContext = [self managedObjectContextForMainThread];
+            [threadDictionary setObject:managedObjectContextForCurrentThread forKey:MP_PERTHREADKEY_MOC];
         }
         
         return managedObjectContextForCurrentThread;        
