@@ -14,9 +14,8 @@ Features:
 
 The recommended way to install is by using [CocoaPods](http://cocoapods.org/). Once you have CocoaPods installed, add the following line to your project's Podfile:
 ```
-pod 'MMPCoreDataHelper', '~> 0.5.0'
+pod "MMPCoreDataHelper"
 ```
-Don't forget to link CoreData.framework as well.
 
 
 ## Usage
