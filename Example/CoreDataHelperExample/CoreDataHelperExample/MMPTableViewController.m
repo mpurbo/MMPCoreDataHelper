@@ -85,6 +85,40 @@
 	if (![[self fetchedResultsController] performFetch:&error]) {
 		NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
 	}
+    
+    // run some dummy DB operation in background for fun
+    dispatch_async(dispatch_queue_create("BkgQ", NULL), ^{
+        
+        MMPArtist *artist = (MMPArtist *)[db objectOfEntity:[MMPArtist class]
+                                                havingValue:@"Pink Floyd"
+                                                  forColumn:@"name"];
+        
+        for (int i = 0; i < 5; i++) {
+            // add a new album every 2 seconds
+            sleep(2);
+            MMPAlbum *album = (MMPAlbum *)[db createObjectOfEntity:[MMPAlbum class]];
+            album.id = [NSString stringWithFormat:@"dummy-%d", i];
+            album.name = [NSString stringWithFormat:@"Dummy %d", i];;
+            album.artist = artist;
+            [db save];
+            // table view should be automatically refreshed by now
+            NSLog(@"Dummy album with ID %@ saved", album.id);
+        }
+        
+        NSArray *dummyAlbums = [db objectsOfEntity:[MMPAlbum class]
+                                   havingValueLike:@"dummy-*"
+                                         forColumn:@"id"
+                                           orderBy:@"id"];
+        
+        NSLog(@"%d dummy albums about to be deleted", [dummyAlbums count]);
+        for (MMPAlbum *album in dummyAlbums) {
+            // delete album every 2 seconds
+            sleep(2);
+            [db deleteObject:album];
+            [db save];
+        }
+        
+    });
 }
 
 - (void)didReceiveMemoryWarning
@@ -117,15 +151,76 @@
     return [sectionInfo numberOfObjects];
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)configureCell:(UITableViewCell *)cell atIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
-    
     MMPAlbum *album = [_fetchedResultsController objectAtIndexPath:indexPath];
     cell.textLabel.text = album.name;
     cell.detailTextLabel.text = album.artist.name;
-    
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"Cell" forIndexPath:indexPath];
+    [self configureCell:cell atIndexPath:indexPath];
     return cell;
+}
+
+- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller
+{
+    // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
+    [self.tableView beginUpdates];
+}
+
+
+- (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath
+{
+    
+    UITableView *tableView = self.tableView;
+    
+    switch(type) {
+            
+        case NSFetchedResultsChangeInsert:
+            [tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+            
+        case NSFetchedResultsChangeDelete:
+            [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+            
+        case NSFetchedResultsChangeUpdate:
+            [self configureCell:[tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
+            break;
+            
+        case NSFetchedResultsChangeMove:
+            [tableView deleteRowsAtIndexPaths:[NSArray
+                                               arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+            [tableView insertRowsAtIndexPaths:[NSArray
+                                               arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+    }
+}
+
+
+- (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id )sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type
+{
+    
+    switch(type) {
+            
+        case NSFetchedResultsChangeInsert:
+            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+            
+        case NSFetchedResultsChangeDelete:
+            [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
+            break;
+    }
+}
+
+
+- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller
+{
+    // The fetch controller has sent all current change notifications, so tell the table view to process all updates.
+    [self.tableView endUpdates];
 }
 
 - (NSFetchedResultsController *)fetchedResultsController {

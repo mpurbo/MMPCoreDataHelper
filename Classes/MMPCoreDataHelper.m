@@ -547,7 +547,7 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
                                      withPredicate:nil
                                            orderBy:columnName ? @[[NSSortDescriptor sortDescriptorWithKey:columnName ascending:YES]] : nil
                                 sectionNameKeyPath:nil
-                                         cacheName:[NSString stringWithFormat:@"all-%@-%@", NSStringFromClass(entityClass), columnName]];
+                                         cacheName:nil];
 }
 
 - (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass orderBy:(NSString *)columnName sectionNameKeyPath:(NSString *)sectionNameKeyPath
@@ -556,7 +556,7 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
                                      withPredicate:nil
                                            orderBy:columnName ? @[[NSSortDescriptor sortDescriptorWithKey:columnName ascending:YES]] : nil
                                 sectionNameKeyPath:sectionNameKeyPath
-                                         cacheName:[NSString stringWithFormat:@"all-%@-%@-%@", NSStringFromClass(entityClass), columnName, sectionNameKeyPath]];
+                                         cacheName:nil];
 }
 
 - (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
@@ -568,11 +568,7 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
                                      withPredicate:(column && value) ? [NSPredicate predicateWithFormat:[NSString stringWithFormat:@"%@ == %%@", column], value] : nil
                                            orderBy:columnName ? @[[NSSortDescriptor sortDescriptorWithKey:columnName ascending:YES]] : nil
                                 sectionNameKeyPath:nil
-                                         cacheName:[NSString stringWithFormat:@"filt1-%@-%@=%@-%@",
-                                                    NSStringFromClass(entityClass),
-                                                    column,
-                                                    value,
-                                                    columnName]];
+                                         cacheName:nil];
 }
 
 - (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
