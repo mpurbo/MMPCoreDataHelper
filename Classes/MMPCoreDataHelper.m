@@ -84,6 +84,13 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     @synchronized(self) {
         if (!_managedObjectModel) {
             NSURL *modelURL = [[NSBundle mainBundle] URLForResource:[self modelName] withExtension:@"momd"];
+            if (!modelURL) {
+                // no momd? try mom
+                modelURL = [[NSBundle mainBundle] URLForResource:[self modelName] withExtension:@"mom"];
+            }
+            if (!modelURL) {
+                NSLog(@"[ERROR] Unable to find model with name: %@", [self modelName]);
+            }
             _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
         }
     }

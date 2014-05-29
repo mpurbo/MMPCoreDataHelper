@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "MMPCoreDataHelper"
-  s.version          = "0.5.1"
+  s.version          = "0.5.2"
   s.summary          = "A straightforward CoreData wrapper"
   s.description      = <<-DESC
                        A no-nonsense straightforward helper library providing wrapper functions for common CoreData tasks. Nothing is hidden, no fancy DAO or active record, just a way to simplify plain old CoreData uses. 

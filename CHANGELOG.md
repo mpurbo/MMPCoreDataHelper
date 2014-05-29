@@ -10,3 +10,6 @@ Initial public release.
 * Auto-cache removed (not really useful).
 * Some documentation.
 
+## 0.5.2
+
+* Bug fix: model file is not loaded when the compiler produces a .mom file instead of .momd
