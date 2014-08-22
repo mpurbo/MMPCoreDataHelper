@@ -25,6 +25,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
+#import "NSManagedObject+MMPCoreDataActive.h"
 
 /**
  *  Notification sent on error commiting changes. Observe this notification on NSNotificationManager to 

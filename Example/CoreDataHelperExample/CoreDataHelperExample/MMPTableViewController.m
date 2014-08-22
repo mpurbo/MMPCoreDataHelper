@@ -28,42 +28,39 @@
     return self;
 }
 
-- (void)initDatabase
+- (void)initDatabaseWithActiveRecord
 {
-    // the singleton instance of MMPCoreDataHelper
-    MMPCoreDataHelper *db = [MMPCoreDataHelper instance];
-    
-    MMPArtist *artist = [db createObjectOfEntity:[MMPArtist class]];
+    MMPArtist *artist = [MMPArtist create];
     artist.id = @"1";
     artist.name = @"Daft Punk";
     
-    MMPAlbum *album = [db createObjectOfEntity:[MMPAlbum class]];
+    MMPAlbum *album = [MMPAlbum create];
     album.id = @"1-1";
     album.name = @"Homework";
     album.artist = artist;
     
-    album = [db createObjectOfEntity:[MMPAlbum class]];
+    album = [MMPAlbum create];
     album.id = @"1-2";
     album.name = @"Discovery";
     album.artist = artist;
     
-    artist = [db createObjectOfEntity:[MMPArtist class]];
+    artist = [MMPArtist create];
     artist.id = @"2";
     artist.name = @"Pink Floyd";
     
-    album = [db createObjectOfEntity:[MMPAlbum class]];
+    album = [MMPAlbum create];
     album.id = @"2-1";
     album.name = @"Animal";
     album.artist = artist;
     
-    album = [db createObjectOfEntity:[MMPAlbum class]];
+    album = [MMPAlbum create];
     album.id = @"2-2";
     album.name = @"The Wall";
     album.artist = artist;
-
-    [db save];
     
-    NSLog(@"Database initialized, %lu artists created", (unsigned long)[db objectsOfEntity:[MMPArtist class]].count);
+    [[MMPCoreDataHelper instance] save];
+    
+    NSLog(@"Database initialized, %lu artists created", (unsigned long)[MMPArtist all].count);
 }
 
 - (void)viewDidLoad
@@ -76,7 +73,7 @@
     // check if the data is already created
     NSArray *artists = [db objectsOfEntity:[MMPArtist class]];
     if (!artists || artists.count == 0) {
-        [self initDatabase];
+        [self initDatabaseWithActiveRecord];
     } else {
         NSLog(@"Database ready");
     }
@@ -89,33 +86,29 @@
     // run some dummy DB operation in background for fun
     dispatch_async(dispatch_queue_create("BkgQ", NULL), ^{
         
-        MMPArtist *artist = [db objectOfEntity:[MMPArtist class]
-                                   havingValue:@"Pink Floyd"
-                                     forColumn:@"name"];
+        MMPArtist *artist = [MMPArtist oneWhere:@"name" isEqualTo:@"Pink Floyd"];
         
         for (int i = 0; i < 5; i++) {
             // add a new album every 2 seconds
             sleep(2);
-            MMPAlbum *album = [db createObjectOfEntity:[MMPAlbum class]];
+            //MMPAlbum *album = [db createObjectOfEntity:[MMPAlbum class]];
+            MMPAlbum *album = [MMPAlbum create];
             album.id = [NSString stringWithFormat:@"dummy-%d", i];
             album.name = [NSString stringWithFormat:@"Dummy %d", i];;
             album.artist = artist;
-            [db save];
+            [album save];
             // table view should be automatically refreshed by now
             NSLog(@"Dummy album with ID %@ saved", album.id);
         }
         
-        NSArray *dummyAlbums = [db objectsOfEntity:[MMPAlbum class]
-                                   havingValueLike:@"dummy-*"
-                                         forColumn:@"id"
-                                           orderBy:@"id"];
+        NSArray *dummyAlbums = [MMPAlbum where:@"id" isLike:@"dummy-*" orderBy:@"id"];
         
         NSLog(@"%d dummy albums about to be deleted", [dummyAlbums count]);
         for (MMPAlbum *album in dummyAlbums) {
             // delete album every 2 seconds
             sleep(2);
-            [db deleteObject:album];
-            [db save];
+            [album delete];
+            [album save];
         }
         
     });
@@ -229,9 +222,9 @@
         return _fetchedResultsController;
     }
     
-    self.fetchedResultsController = [[MMPCoreDataHelper instance] fetchedResultsControllerForEntity:[MMPAlbum class]
-                                                                                            orderBy:@"artist.name"
-                                                                                 sectionNameKeyPath:@"artist.name"];
+    self.fetchedResultsController = [MMPAlbum fetchAllOrderBy:@"artist.name"
+                                           sectionNameKeyPath:@"artist.name"];
+    
     _fetchedResultsController.delegate = self;
     
     return _fetchedResultsController;
