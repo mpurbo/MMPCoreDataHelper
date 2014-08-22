@@ -257,7 +257,7 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     }
 }
 
-- (NSManagedObject *)createObjectOfEntity:(Class)entityClass
+- (id)createObjectOfEntity:(Class)entityClass
 {
     NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
     NSEntityDescription *entity = [NSEntityDescription entityForName:NSStringFromClass(entityClass)

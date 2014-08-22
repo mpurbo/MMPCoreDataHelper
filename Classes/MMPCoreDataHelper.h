@@ -115,7 +115,7 @@ extern NSString * const MMPDataAccessDidSaveNotification;
  *
  *  @return A new object of entity type as specified.
  */
-- (NSManagedObject *)createObjectOfEntity:(Class)entityClass;
+- (id)createObjectOfEntity:(Class)entityClass;
 
 /**
  *  Deletes a single object.
@@ -164,10 +164,11 @@ extern NSString * const MMPDataAccessDidSaveNotification;
  *  ---------------------------------------------------------------------------------------
  */
 
-- (NSManagedObject *)objectOfEntity:(Class)entityClass
-                        havingValue:(id)value forColumn:(NSString *)column;
-- (NSManagedObject *)objectOfEntity:(Class)entityClass
-                havingValuesForKeys:(NSDictionary *)valuesForKeys;
+- (id)objectOfEntity:(Class)entityClass
+         havingValue:(id)value
+           forColumn:(NSString *)column;
+- (id)objectOfEntity:(Class)entityClass
+ havingValuesForKeys:(NSDictionary *)valuesForKeys;
 
 /**---------------------------------------------------------------------------------------
  * @name Counting object
@@ -175,7 +176,9 @@ extern NSString * const MMPDataAccessDidSaveNotification;
  */
 
 - (NSUInteger)countObjectsOfEntity:(Class)entityClass;
-- (NSUInteger)countObjectsOfEntity:(Class)entityClass havingValue:(id)value forColumn:(NSString *)column;
+- (NSUInteger)countObjectsOfEntity:(Class)entityClass
+                       havingValue:(id)value
+                         forColumn:(NSString *)column;
 
 /**---------------------------------------------------------------------------------------
  * @name Query producing NSFetchedResultsController

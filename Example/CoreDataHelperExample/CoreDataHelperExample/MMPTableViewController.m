@@ -33,30 +33,30 @@
     // the singleton instance of MMPCoreDataHelper
     MMPCoreDataHelper *db = [MMPCoreDataHelper instance];
     
-    MMPArtist *artist = (MMPArtist *)[db createObjectOfEntity:[MMPArtist class]];
+    MMPArtist *artist = [db createObjectOfEntity:[MMPArtist class]];
     artist.id = @"1";
     artist.name = @"Daft Punk";
     
-    MMPAlbum *album = (MMPAlbum *)[db createObjectOfEntity:[MMPAlbum class]];
+    MMPAlbum *album = [db createObjectOfEntity:[MMPAlbum class]];
     album.id = @"1-1";
     album.name = @"Homework";
     album.artist = artist;
     
-    album = (MMPAlbum *)[db createObjectOfEntity:[MMPAlbum class]];
+    album = [db createObjectOfEntity:[MMPAlbum class]];
     album.id = @"1-2";
     album.name = @"Discovery";
     album.artist = artist;
     
-    artist = (MMPArtist *)[db createObjectOfEntity:[MMPArtist class]];
+    artist = [db createObjectOfEntity:[MMPArtist class]];
     artist.id = @"2";
     artist.name = @"Pink Floyd";
     
-    album = (MMPAlbum *)[db createObjectOfEntity:[MMPAlbum class]];
+    album = [db createObjectOfEntity:[MMPAlbum class]];
     album.id = @"2-1";
     album.name = @"Animal";
     album.artist = artist;
     
-    album = (MMPAlbum *)[db createObjectOfEntity:[MMPAlbum class]];
+    album = [db createObjectOfEntity:[MMPAlbum class]];
     album.id = @"2-2";
     album.name = @"The Wall";
     album.artist = artist;
@@ -89,14 +89,14 @@
     // run some dummy DB operation in background for fun
     dispatch_async(dispatch_queue_create("BkgQ", NULL), ^{
         
-        MMPArtist *artist = (MMPArtist *)[db objectOfEntity:[MMPArtist class]
-                                                havingValue:@"Pink Floyd"
-                                                  forColumn:@"name"];
+        MMPArtist *artist = [db objectOfEntity:[MMPArtist class]
+                                   havingValue:@"Pink Floyd"
+                                     forColumn:@"name"];
         
         for (int i = 0; i < 5; i++) {
             // add a new album every 2 seconds
             sleep(2);
-            MMPAlbum *album = (MMPAlbum *)[db createObjectOfEntity:[MMPAlbum class]];
+            MMPAlbum *album = [db createObjectOfEntity:[MMPAlbum class]];
             album.id = [NSString stringWithFormat:@"dummy-%d", i];
             album.name = [NSString stringWithFormat:@"Dummy %d", i];;
             album.artist = artist;
