@@ -1,9 +1,10 @@
 MMPCoreDataHelper
 =================
 
-A no-nonsense straightforward helper library of wrapper functions for common CoreData tasks. Nothing hidden, no fancy [DAO](http://en.wikipedia.org/wiki/Data_access_object) or [Active Record](http://en.wikipedia.org/wiki/Active_record_pattern), just a practical way to simplify the use of the plain old CoreData. When the library doesn't have the function you need, you can always fallback to the standard CoreData.
+A no-nonsense straightforward helper library of wrapper functions for common CoreData tasks. When the library doesn't have the function you need, you can always fallback to the standard CoreData.
 
 Features:
+* [Active Record](http://en.wikipedia.org/wiki/Active_record_pattern)-like wrapper for common tasks.
 * Thread-safe singleton instance easily accessible from anywhere. No more worrying whether a MOC (NSManagedObjectContext) belongs to the thread or not. The library makes sure that the MOC is local to the whichever thread you're calling the function from.
 * Automatic configuration and initialization (by convention over configuration) by default but manual configuration is still possible.
 * Provides simple functions for common CoreData usage pattern (query all objects, query by key-value, etc.)
@@ -22,19 +23,16 @@ pod "MMPCoreDataHelper"
 
 Use the singleton instance anywhere in any thread in the application and call suitable function:
 ```objectivec
-// get the singleton instance
-MMPCoreDataHelper *db = [MMPCoreDataHelper instance];
-
 // create new record (MMPArtist is a NSManagedObject)
-artist = (MMPArtist *)[db createObjectOfEntity:[MMPArtist class]];
+artist = [MMPArtist create];
 artist.id = @"2";
 artist.name = @"Pink Floyd";
 
 // save it
-[db save];
+[artist save];
 
 // get all records
-NSArray *artists = [db objectsOfEntity:[MMPArtist class]];
+NSArray *artists = [MMPArtist all];
 ```
 
 No initialization or configuration necessary assuming the data model (momd) is named exactly the same as the application name. Otherwise, the data model name has to be set before calling any other of singleton's function:
@@ -52,9 +50,8 @@ No initialization or configuration necessary assuming the data model (momd) is n
 
 Functions producing NSFetchedResultsController are also available, for example:
 ```objectivec
-self.fetchedResultsController = [[MMPCoreDataHelper instance] fetchedResultsControllerForEntity:[MMPAlbum class]
-                                                                                        orderBy:@"artist.name"
-                                                                             sectionNameKeyPath:@"artist.name"];
+self.fetchedResultsController = [MMPAlbum fetchAllOrderBy:@"artist.name"
+                                       sectionNameKeyPath:@"artist.name"];
 ```
 
 Should you need to use CoreData directly, simply use thread-safe MOC provided by the singleton instance, for example:
