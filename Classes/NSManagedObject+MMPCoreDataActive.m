@@ -9,9 +9,144 @@
 #import "NSManagedObject+MMPCoreDataActive.h"
 #import "MMPCoreDataHelper.h"
 
+@interface MMPCoreDataQueryable()
+
+@property (nonatomic, strong) Class entityClass;
+
+@property (nonatomic, strong) id conditions;
+@property (nonatomic, strong) id order;
+@property (nonatomic, strong) NSNumber *numberOfRecords;
+@property (nonatomic, strong) NSNumber *fromRecordNum;
+@property (nonatomic, strong) NSString *sectionNameKeyPath;
+@property (nonatomic, strong) NSString *cacheName;
+@property (nonatomic, copy) MMPCoreDataErrorBlock errorBlock;
+
+- (id)initWithClass:(Class)entityClass;
+
+@end
+
+@implementation MMPCoreDataQueryable
+
+- (id)initWithClass:(Class)entityClass;
+{
+    if (self = [super init]) {
+        self.entityClass = entityClass;
+        self.conditions = nil;
+        self.order = nil;
+        self.numberOfRecords = nil;
+        self.fromRecordNum = nil;
+        self.sectionNameKeyPath = nil;
+        self.cacheName = nil;
+        self.errorBlock = nil;
+    }
+    return self;
+}
+
+- (MMPCoreDataQueryable *)where:(id)condition, ...
+{
+    va_list va_arguments;
+    va_start(va_arguments, condition);
+    _conditions =  [MMPCoreDataHelper predicateFromObject:condition arguments:va_arguments];
+    va_end(va_arguments);
+    return self;
+}
+
+- (MMPCoreDataQueryable *)order:(id)order
+{
+    _order = order;
+    return self;
+}
+
+- (MMPCoreDataQueryable *)limit:(NSUInteger)numberOfRecords
+{
+    _numberOfRecords = @(numberOfRecords);
+    return self;
+}
+
+- (MMPCoreDataQueryable *)offset:(NSUInteger)fromRecordNum
+{
+    _fromRecordNum = @(fromRecordNum);
+    return self;
+}
+
+- (MMPCoreDataQueryable *)error:(MMPCoreDataErrorBlock)errorBlock
+{
+    _errorBlock = errorBlock;
+    return self;
+}
+
+- (MMPCoreDataQueryable *)sectionNameKeyPath:(NSString *)sectionNameKeyPath
+{
+    _sectionNameKeyPath = sectionNameKeyPath;
+    return self;
+}
+
+- (MMPCoreDataQueryable *)cacheName:(NSString *)cacheName
+{
+    _cacheName = cacheName;
+    return self;
+}
+
+- (id)first
+{
+    NSArray *result = [self array];
+    return ([result count] > 0) ? [result objectAtIndex:0] : nil;
+}
+
+- (NSArray *)array
+{
+    NSError *error = nil;
+    NSArray *ret = [[MMPCoreDataHelper instance] objectsOfEntity:_entityClass
+                                                           where:_conditions
+                                                           order:_order
+                                                           limit:_numberOfRecords
+                                                          offset:_fromRecordNum
+                                                           error:&error];
+    if (error) {
+        if (_errorBlock) {
+            _errorBlock(error);
+        } else {
+            NSLog(@"[ERROR] Unhandled MMPCoreDataHelper query error: %@", error);
+        }
+    }
+    
+    return ret;
+}
+
+- (NSUInteger)count
+{
+    NSError *error = nil;
+    NSUInteger ret = [[MMPCoreDataHelper instance] countObjectsOfEntity:_entityClass
+                                                                  where:_conditions
+                                                                  error:&error];
+    
+    if (error) {
+        if (_errorBlock) {
+            _errorBlock(error);
+        } else {
+            NSLog(@"[ERROR] Unhandled MMPCoreDataHelper count error: %@", error);
+        }
+    }
+    
+    return ret;
+}
+
+- (NSFetchedResultsController *)fetchedResultsController
+{
+    return [[MMPCoreDataHelper instance] fetchedResultsControllerForEntity:_entityClass
+                                                                     where:_conditions
+                                                                     order:_order
+                                                                     limit:_numberOfRecords
+                                                                    offset:_fromRecordNum
+                                                        sectionNameKeyPath:_sectionNameKeyPath
+                                                                 cacheName:_cacheName];
+}
+
+@end;
+
 @implementation NSManagedObject (MMPCoreDataActive)
 
-+ (id)create
++ (instancetype)create
 {
     return [[MMPCoreDataHelper instance] createObjectOfEntity:[self class]];
 }
@@ -26,40 +161,9 @@
     [[MMPCoreDataHelper instance] save];
 }
 
-+ (NSArray *)all
++ (MMPCoreDataQueryable *)query
 {
-    return [[MMPCoreDataHelper instance] objectsOfEntity:[self class]];
-}
-
-+ (NSArray *)allOrderBy:(NSString *)column
-{
-    return [[MMPCoreDataHelper instance] objectsOfEntity:[self class] orderBy:column];
-}
-
-+ (NSArray *)where:(NSString *)column isEqualTo:(id)object
-{
-    return [[MMPCoreDataHelper instance] objectsOfEntity:[self class] havingValue:object forColumn:column];
-}
-
-+ (NSArray *)where:(NSString *)column isEqualTo:(id)object orderBy:(NSString *)orderByColumn
-{
-    return [[MMPCoreDataHelper instance] objectsOfEntity:[self class] havingValue:object forColumn:column orderBy:orderByColumn];
-}
-
-+ (NSArray *)where:(NSString *)column isLike:(id)object orderBy:(NSString *)orderByColumn
-{
-    return [[MMPCoreDataHelper instance] objectsOfEntity:[self class] havingValueLike:object forColumn:column orderBy:orderByColumn];
-}
-
-+ (id)oneWhere:(NSString *)column isEqualTo:(id)object
-{
-    return [[MMPCoreDataHelper instance] objectOfEntity:[self class] havingValue:object forColumn:column];
-}
-
-+ (NSFetchedResultsController *)fetchAllOrderBy:(NSString *)orderByColumn
-                             sectionNameKeyPath:(NSString *)sectionNameKeyPath
-{
-    return [[MMPCoreDataHelper instance] fetchedResultsControllerForEntity:[self class] orderBy:orderByColumn sectionNameKeyPath:sectionNameKeyPath];
+    return [[MMPCoreDataQueryable alloc] initWithClass:[self class]];
 }
 
 @end

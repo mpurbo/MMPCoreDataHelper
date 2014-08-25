@@ -33,6 +33,9 @@ artist.name = @"Pink Floyd";
 
 // get all records
 NSArray *artists = [MMPArtist all];
+
+// simple query
+NSArray *pinks = [MMPArtist where:@"name" isLike:@"Pink*" orderBy:@"id"];
 ```
 
 No initialization or configuration necessary assuming the data model (momd) is named exactly the same as the application name. Otherwise, the data model name has to be set before calling any other of singleton's function:

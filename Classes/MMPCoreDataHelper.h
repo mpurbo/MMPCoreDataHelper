@@ -2,7 +2,11 @@
 //  MMPCoreDataHelper.h
 //
 //  The MIT License (MIT)
-//  Copyright (c) 2014 Mamad Purbo, purbo.org
+//  Copyright (c) 2014 Mamad Purbo, <http://mamad.purbo.org>
+//
+//  This library includes ideas and implementations adapted from ObjectiveRecord
+//  (https://github.com/supermarin/ObjectiveRecord)
+//  Copyright (c) 2014 Marin Usalj <http://supermar.in>
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -133,53 +137,43 @@ extern NSString * const MMPDataAccessDidSaveNotification;
 - (void)deleteObjectsOfEntity:(Class)entityClass;
 
 /**---------------------------------------------------------------------------------------
+ * @name Utilities
+ *  ---------------------------------------------------------------------------------------
+ */
+
++ (NSPredicate *)predicateFromObject:(id)condition arguments:(va_list)arguments;
+
+/**---------------------------------------------------------------------------------------
  * @name Query producing multiple objects
  *  ---------------------------------------------------------------------------------------
  */
 
-- (NSArray *)objectsOfEntity:(Class)entityClass;
 - (NSArray *)objectsOfEntity:(Class)entityClass
-                     orderBy:(NSString *)column;
-- (NSArray *)objectsOfEntity:(Class)entityClass
-                 havingValue:(id)value
-                   forColumn:(NSString *)column;
-- (NSArray *)objectsOfEntity:(Class)entityClass
-                 havingValue:(id)value
-                   forColumn:(NSString *)column
-                     orderBy:(NSString *)orderColumn;
-- (NSArray *)objectsOfEntity:(Class)entityClass
-             havingValueLike:(id)value forColumn:(NSString *)column
-                     orderBy:(NSString *)orderColumn;
-- (NSArray *)objectsOfEntity:(Class)entityClass
-         havingValuesForKeys:(NSDictionary *)valuesForKeys;
+                       where:(id)condition
+                       order:(id)order
+                       limit:(NSNumber *)numberOfRecords
+                      offset:(NSNumber *)fromRecordNum
+                       error:(NSError **)error;
 
-- (NSArray *)objectsOfEntity:(Class)entityClass
-   havingValuesForPredicates:(NSDictionary *)predicatesForKeys
-                     orderBy:(NSString *)orderColumn;
 - (NSArray *)objectsOfEntity:(Class)entityClass
                withPredicate:(NSPredicate *)predicate
-                     orderBy:(NSArray *)sortDescriptors;
+             sortDescriptors:(NSArray *)sortDescriptors
+                  fetchLimit:(NSNumber *)fetchLimit
+                 fetchOffset:(NSNumber *)fetchOffset
+                       error:(NSError **)error;
 
 /**---------------------------------------------------------------------------------------
- * @name Query producing single object
+ * @name Aggregate query
  *  ---------------------------------------------------------------------------------------
  */
 
-- (id)objectOfEntity:(Class)entityClass
-         havingValue:(id)value
-           forColumn:(NSString *)column;
-- (id)objectOfEntity:(Class)entityClass
- havingValuesForKeys:(NSDictionary *)valuesForKeys;
-
-/**---------------------------------------------------------------------------------------
- * @name Counting object
- *  ---------------------------------------------------------------------------------------
- */
-
-- (NSUInteger)countObjectsOfEntity:(Class)entityClass;
 - (NSUInteger)countObjectsOfEntity:(Class)entityClass
-                       havingValue:(id)value
-                         forColumn:(NSString *)column;
+                             where:(id)condition
+                             error:(NSError **)error;
+
+- (NSUInteger)countObjectsOfEntity:(Class)entityClass
+                     withPredicate:(NSPredicate *)predicate
+                             error:(NSError **)error;
 
 /**---------------------------------------------------------------------------------------
  * @name Query producing NSFetchedResultsController
@@ -187,24 +181,18 @@ extern NSString * const MMPDataAccessDidSaveNotification;
  */
 
 - (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
-                                                          orderBy:(NSString *)columnName;
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
-                                                          orderBy:(NSString *)columnName
-                                               sectionNameKeyPath:(NSString *)sectionNameKeyPath;
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
-                                                      havingValue:(id)value
-                                                        forColumn:(NSString *)column
-                                                          orderBy:(NSString *)columnName;
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
-                                                    withPredicate:(NSPredicate *)predicate
-                                                          orderBy:(NSArray *)sortDescriptors;
+                                                            where:(id)condition
+                                                            order:(id)order
+                                                            limit:(NSNumber *)numberOfRecords
+                                                           offset:(NSNumber *)fromRecordNum
+                                               sectionNameKeyPath:(NSString *)sectionNameKeyPath
+                                                        cacheName:(NSString *)cacheName;
+
 - (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
                                                     withPredicate:(NSPredicate *)predicate
-                                                          orderBy:(NSArray *)sortDescriptors
-                                               sectionNameKeyPath:(NSString *)sectionNameKeyPath;
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
-                                                    withPredicate:(NSPredicate *)predicate
-                                                          orderBy:(NSArray *)sortDescriptors
+                                                  sortDescriptors:(NSArray *)sortDescriptors
+                                                       fetchLimit:(NSNumber *)fetchLimit
+                                                      fetchOffset:(NSNumber *)fetchOffset
                                                sectionNameKeyPath:(NSString *)sectionNameKeyPath
                                                         cacheName:(NSString *)cacheName;
 

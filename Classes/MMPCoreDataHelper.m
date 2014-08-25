@@ -2,7 +2,11 @@
 //  MMPCoreDataHelper.h
 //
 //  The MIT License (MIT)
-//  Copyright (c) 2014 Mamad Purbo, purbo.org
+//  Copyright (c) 2014 Mamad Purbo, <http://mamad.purbo.org>
+//
+//  This library includes ideas and implementations adapted from ObjectiveRecord
+//  (https://github.com/supermarin/ObjectiveRecord)
+//  Copyright (c) 2014 Marin Usalj <http://supermar.in>
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -42,6 +46,8 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
 
 @synthesize managedObjectModel = _managedObjectModel;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
+
+#pragma mark - General
 
 + (instancetype)instance
 {
@@ -257,6 +263,8 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     }
 }
 
+#pragma mark - Create, update, and delete
+
 - (id)createObjectOfEntity:(Class)entityClass
 {
     NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
@@ -295,222 +303,154 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     }
 }
 
+#pragma mark - Utilities
+// Utilities adapted from https://github.com/supermarin/ObjectiveRecord
+
++ (NSPredicate *)predicateFromDictionary:(NSDictionary *)dict
+{
+    NSMutableArray *subpredicates = [NSMutableArray array];
+    for (NSString* key in dict) {
+        [subpredicates addObject:[NSPredicate predicateWithFormat:@"%K = %@", key, [dict objectForKey:key]]];
+    }
+    
+    return [NSCompoundPredicate andPredicateWithSubpredicates:subpredicates];
+}
+
++ (NSPredicate *)predicateFromObject:(id)condition {
+    return [self predicateFromObject:condition arguments:NULL];
+}
+
++ (NSPredicate *)predicateFromObject:(id)condition arguments:(va_list)arguments
+{
+    if ([condition isKindOfClass:[NSPredicate class]])
+        return condition;
+    
+    if ([condition isKindOfClass:[NSString class]])
+        return [NSPredicate predicateWithFormat:condition arguments:arguments];
+    
+    if ([condition isKindOfClass:[NSDictionary class]])
+        return [self predicateFromDictionary:condition];
+    
+    return nil;
+}
+
++ (NSSortDescriptor *)sortDescriptorFromDictionary:(NSDictionary *)dict
+{
+    BOOL isAscending = ![[[dict.allValues objectAtIndex:0] uppercaseString] isEqualToString:@"DESC"];
+    return [NSSortDescriptor sortDescriptorWithKey:[dict.allKeys objectAtIndex:0]
+                                         ascending:isAscending];
+}
+
++ (NSSortDescriptor *)sortDescriptorFromString:(NSString *)order
+{
+    NSArray *result = [order componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    NSMutableArray *components = [NSMutableArray array];
+    for (NSString *string in result) {
+        if (string.length > 0) {
+            [components addObject:string];
+        }
+    }
+    
+    NSString *key = [components firstObject];
+    NSString *value = [components count] > 1 ? components[1] : @"ASC";
+    
+    return [self sortDescriptorFromDictionary:@{key: value}];
+    
+}
+
++ (NSSortDescriptor *)sortDescriptorFromObject:(id)order
+{
+    if ([order isKindOfClass:[NSSortDescriptor class]])
+        return order;
+    
+    if ([order isKindOfClass:[NSString class]])
+        return [self sortDescriptorFromString:order];
+    
+    if ([order isKindOfClass:[NSDictionary class]])
+        return [self sortDescriptorFromDictionary:order];
+    
+    return nil;
+}
+
++ (NSArray *)sortDescriptorsFromObject:(id)order
+{
+    if (!order) {
+        return nil;
+    }
+    
+    if ([order isKindOfClass:[NSString class]])
+        order = [order componentsSeparatedByString:@","];
+    
+    if ([order isKindOfClass:[NSArray class]]) {
+        NSMutableArray *ret = [NSMutableArray array];
+        for (id object in order) {
+            [ret addObject:[self sortDescriptorFromObject:object]];
+        }
+        return ret;
+    }
+    
+    return @[[self sortDescriptorFromObject:order]];
+}
+
+#pragma mark - Query producing multiple objects
+
 - (NSArray *)objectsOfEntity:(Class)entityClass
+                       where:(id)condition
+                       order:(id)order
+                       limit:(NSNumber *)numberOfRecords
+                      offset:(NSNumber *)fromRecordNum
+                       error:(NSError **)error
 {
     return [self objectsOfEntity:entityClass
-                         orderBy:nil];
+                   withPredicate:[MMPCoreDataHelper predicateFromObject:condition]
+                 sortDescriptors:[MMPCoreDataHelper sortDescriptorsFromObject:order]
+                      fetchLimit:numberOfRecords
+                     fetchOffset:fromRecordNum
+                           error:error];
 }
 
-- (NSArray *)objectsOfEntity:(Class)entityClass orderBy:(NSString *)column
+- (NSArray *)objectsOfEntity:(Class)entityClass
+               withPredicate:(NSPredicate *)predicate
+             sortDescriptors:(NSArray *)sortDescriptors
+                  fetchLimit:(NSNumber *)fetchLimit
+                 fetchOffset:(NSNumber *)fetchOffset
+                       error:(NSError **)error
 {
-    NSError *error = nil;
-    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
-    
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    
-    [request setEntity:[NSEntityDescription entityForName:NSStringFromClass(entityClass)
-                                   inManagedObjectContext:managedObjectContext]];
-    if (column != nil) {
-        [request setSortDescriptors:[NSArray arrayWithObjects:
-                                     [NSSortDescriptor sortDescriptorWithKey:column ascending:YES],
-                                     nil]];
-    }
-    
-    NSArray *results = [managedObjectContext executeFetchRequest:request error:&error];
-    
-    if (error != nil) {
-        NSLog(@"Error fetching data: %@", [error localizedDescription]);
-    }
-    return results;
-}
-
-- (NSArray *)objectsOfEntity:(Class)entityClass havingValue:(id)value forColumn:(NSString *)column
-{
-    return [self objectsOfEntity:entityClass
-                     havingValue:value
-                       forColumn:column
-                         orderBy:nil];
-}
-
-- (NSArray *)objectsOfEntity:(Class)entityClass havingValue:(id)value forColumn:(NSString *)column orderBy:(NSString *)orderColumn
-{
-    NSError *error = nil;
     NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
     
     NSFetchRequest *request = [[NSFetchRequest alloc] init];
     [request setEntity:[NSEntityDescription entityForName:NSStringFromClass(entityClass)
                                    inManagedObjectContext:managedObjectContext]];
-    NSString *predicateFormat = [NSString stringWithFormat:@"%@ == %%@", column];
-    [request setPredicate:[NSPredicate predicateWithFormat:predicateFormat, value]];
-    if (orderColumn != nil) {
-        [request setSortDescriptors:[NSArray arrayWithObjects:
-                                     [NSSortDescriptor sortDescriptorWithKey:orderColumn ascending:YES],
-                                     nil]];
+    if (predicate) {
+        [request setPredicate:predicate];
+    }
+    if (sortDescriptors) {
+        [request setSortDescriptors:sortDescriptors];
+    }
+    if (fetchLimit) {
+        [request setFetchLimit:[fetchLimit unsignedIntegerValue]];
+    }
+    if (fetchOffset) {
+        [request setFetchOffset:[fetchOffset unsignedIntegerValue]];
     }
     
-    NSArray *results = [managedObjectContext executeFetchRequest:request error:&error];
-    
-    if (error != nil) {
-        NSLog(@"Error fetching data: %@", [error localizedDescription]);
-    }
-    
-    return results;
+    return [managedObjectContext executeFetchRequest:request error:error];
 }
 
-- (NSArray *)objectsOfEntity:(Class)entityClass havingValueLike:(id)value forColumn:(NSString *)column orderBy:(NSString *)orderColumn
-{
-    NSError *error = nil;
-    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
-    
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    [request setEntity:[NSEntityDescription entityForName:NSStringFromClass(entityClass)
-                                   inManagedObjectContext:managedObjectContext]];
-    NSString *predicateFormat = [NSString stringWithFormat:@"%@ like %%@", column];
-    [request setPredicate:[NSPredicate predicateWithFormat:predicateFormat, value]];
-    if (orderColumn != nil) {
-        [request setSortDescriptors:[NSArray arrayWithObjects:
-                                     [NSSortDescriptor sortDescriptorWithKey:orderColumn ascending:YES],
-                                     nil]];
-    }
-    
-    NSArray *results = [managedObjectContext executeFetchRequest:request error:&error];
-    
-    if (error != nil) {
-        NSLog(@"Error fetching data: %@", [error localizedDescription]);
-    }
-    
-    return results;
-}
+#pragma mark - Aggregate query
 
-- (NSArray *)objectsOfEntity:(Class)entityClass havingValuesForKeys:(NSDictionary *)valuesForKeys
+- (NSUInteger)countObjectsOfEntity:(Class)entityClass
+                             where:(id)condition
+                             error:(NSError **)error
 {
-    NSError *error = nil;
-    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
-    
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    [request setEntity:[NSEntityDescription entityForName:NSStringFromClass(entityClass) inManagedObjectContext:managedObjectContext]];
-    
-    NSMutableArray *subpredicates = [NSMutableArray array];
-    [valuesForKeys enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        NSString *predicateFormat = [NSString stringWithFormat:@"%@ == %%@", key];
-        NSPredicate *subpredicate = [NSPredicate predicateWithFormat:predicateFormat, obj];
-        [subpredicates addObject:subpredicate];
-    }];
-    [request setPredicate:[NSCompoundPredicate andPredicateWithSubpredicates:subpredicates]];
-    
-    NSArray *results = [managedObjectContext executeFetchRequest:request error:&error];
-    
-    if (error != nil) {
-        NSLog(@"Error fetching data: %@", [error localizedDescription]);
-    }
-    
-    return results;
-}
-
-- (NSArray *)objectsOfEntity:(Class)entityClass havingValuesForPredicates:(NSDictionary *)predicatesForKeys orderBy:(NSString *)orderColumn
-{
-    NSError *error = nil;
-    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
-    
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    [request setEntity:[NSEntityDescription entityForName:NSStringFromClass(entityClass)
-                                   inManagedObjectContext:managedObjectContext]];
-    
-    NSMutableArray *subpredicates = [NSMutableArray array];
-    [predicatesForKeys enumerateKeysAndObjectsUsingBlock:^(id predicateFormat, id obj, BOOL *stop) {
-        NSPredicate *subpredicate = [NSPredicate predicateWithFormat:predicateFormat, obj];
-        [subpredicates addObject:subpredicate];
-    }];
-    [request setPredicate:[NSCompoundPredicate andPredicateWithSubpredicates:subpredicates]];
-    if (orderColumn != nil) {
-        [request setSortDescriptors:[NSArray arrayWithObjects:
-                                     [NSSortDescriptor sortDescriptorWithKey:orderColumn ascending:YES],
-                                     nil]];
-    }
-    
-    NSArray *results = [managedObjectContext executeFetchRequest:request error:&error];
-    
-    if (error != nil) {
-        NSLog(@"Error fetching data: %@", [error localizedDescription]);
-    }
-    
-    return results;
-}
-
-- (NSArray *)objectsOfEntity:(Class)entityClass withPredicate:(NSPredicate *)predicate orderBy:(NSArray *)sortDescriptors
-{
-    NSError *error = nil;
-    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
-    
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    [request setEntity:[NSEntityDescription entityForName:NSStringFromClass(entityClass)
-                                   inManagedObjectContext:managedObjectContext]];
-    [request setPredicate:predicate];
-    [request setSortDescriptors:sortDescriptors];
-    
-    NSArray *results = [managedObjectContext executeFetchRequest:request error:&error];
-    
-    if (error != nil) {
-        NSLog(@"Error fetching data: %@", [error localizedDescription]);
-    }
-    
-    return results;
-}
-
-- (NSManagedObject *)objectOfEntity:(Class)entityClass havingValue:(id)value forColumn:(NSString *)column
-{
-    NSError *error = nil;
-    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
-    
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    [request setEntity:[NSEntityDescription entityForName:NSStringFromClass(entityClass)
-                                   inManagedObjectContext:managedObjectContext]];
-    NSString *predicateFormat = [NSString stringWithFormat:@"%@ == %%@", column];
-    [request setPredicate:[NSPredicate predicateWithFormat:predicateFormat, value]];
-    NSArray *results = [managedObjectContext executeFetchRequest:request error:&error];
-    
-    if (error != nil) {
-        NSLog(@"Error fetching data: %@", [error localizedDescription]);
-    }
-    
-    if ([results count] > 0) {
-        return [results objectAtIndex:0];
-    } else {
-        return nil;
-    }
-}
-
-- (NSManagedObject *)objectOfEntity:(Class)entityClass havingValuesForKeys:(NSDictionary *)valuesForKeys
-{
-    NSError *error = nil;
-    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
-    
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    [request setEntity:[NSEntityDescription entityForName:NSStringFromClass(entityClass)
-                                   inManagedObjectContext:managedObjectContext]];
-    
-    NSMutableArray *subpredicates = [NSMutableArray array];
-    [valuesForKeys enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-        NSString *predicateFormat = [NSString stringWithFormat:@"%@ == %%@", key];
-        NSPredicate *subpredicate = [NSPredicate predicateWithFormat:predicateFormat, obj];
-        [subpredicates addObject:subpredicate];
-    }];
-    [request setPredicate:[NSCompoundPredicate andPredicateWithSubpredicates:subpredicates]];
-    
-    NSArray *results = [managedObjectContext executeFetchRequest:request error:&error];
-    
-    if (error != nil) {
-        NSLog(@"Error fetching data: %@", [error localizedDescription]);
-    }
-    
-    if ([results count] > 0) {
-        return [results objectAtIndex:0];
-    } else {
-        return nil;
-    }
+    return [self countObjectsOfEntity:entityClass
+                        withPredicate:[MMPCoreDataHelper predicateFromObject:condition]
+                                error:error];
 }
 
 - (NSUInteger)countObjectsOfEntity:(Class)entityClass
+                     withPredicate:(NSPredicate *)predicate
+                             error:(NSError **)error
 {
     NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
     
@@ -518,9 +458,11 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     [request setEntity:[NSEntityDescription entityForName:NSStringFromClass(entityClass)
                                    inManagedObjectContext:managedObjectContext]];
     [request setIncludesSubentities:NO]; //Omit subentities. Default is YES (i.e. include subentities)
+    if (predicate) {
+        [request setPredicate:predicate];
+    }
     
-    NSError *err;
-    NSUInteger count = [managedObjectContext countForFetchRequest:request error:&err];
+    NSUInteger count = [managedObjectContext countForFetchRequest:request error:error];
     if (count == NSNotFound) {
         count = 0;
     }
@@ -528,82 +470,30 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     return count;
 }
 
-- (NSUInteger)countObjectsOfEntity:(Class)entityClass havingValue:(id)value forColumn:(NSString *)column
-{
-    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
-    
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    [request setEntity:[NSEntityDescription entityForName:NSStringFromClass(entityClass)
-                                   inManagedObjectContext:managedObjectContext]];
-    [request setIncludesSubentities:NO]; //Omit subentities. Default is YES (i.e. include subentities)
-    NSString *predicateFormat = [NSString stringWithFormat:@"%@ == %%@", column];
-    [request setPredicate:[NSPredicate predicateWithFormat:predicateFormat, value]];
-    
-    NSError *err;
-    NSUInteger count = [managedObjectContext countForFetchRequest:request error:&err];
-    if (count == NSNotFound) {
-        count = 0;
-    }
-    
-    return count;
-}
-
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass orderBy:(NSString *)columnName
-{
-    return [self fetchedResultsControllerForEntity:entityClass
-                                     withPredicate:nil
-                                           orderBy:columnName ? @[[NSSortDescriptor sortDescriptorWithKey:columnName ascending:YES]] : nil
-                                sectionNameKeyPath:nil
-                                         cacheName:nil];
-}
-
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass orderBy:(NSString *)columnName sectionNameKeyPath:(NSString *)sectionNameKeyPath
-{
-    return [self fetchedResultsControllerForEntity:entityClass
-                                     withPredicate:nil
-                                           orderBy:columnName ? @[[NSSortDescriptor sortDescriptorWithKey:columnName ascending:YES]] : nil
-                                sectionNameKeyPath:sectionNameKeyPath
-                                         cacheName:nil];
-}
+#pragma mark - Query producing NSFetchedResultsController
 
 - (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
-                                                      havingValue:(id)value
-                                                        forColumn:(NSString *)column
-                                                          orderBy:(NSString *)columnName
-{
-    return [self fetchedResultsControllerForEntity:entityClass
-                                     withPredicate:(column && value) ? [NSPredicate predicateWithFormat:[NSString stringWithFormat:@"%@ == %%@", column], value] : nil
-                                           orderBy:columnName ? @[[NSSortDescriptor sortDescriptorWithKey:columnName ascending:YES]] : nil
-                                sectionNameKeyPath:nil
-                                         cacheName:nil];
-}
-
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
-                                                    withPredicate:(NSPredicate *)predicate
-                                                          orderBy:(NSArray *)sortDescriptors
-{
-    return [self fetchedResultsControllerForEntity:entityClass
-                                     withPredicate:predicate
-                                           orderBy:sortDescriptors
-                                sectionNameKeyPath:nil
-                                         cacheName:nil];
-}
-
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
-                                                    withPredicate:(NSPredicate *)predicate
-                                                          orderBy:(NSArray *)sortDescriptors
+                                                            where:(id)condition
+                                                            order:(id)order
+                                                            limit:(NSNumber *)numberOfRecords
+                                                           offset:(NSNumber *)fromRecordNum
                                                sectionNameKeyPath:(NSString *)sectionNameKeyPath
+                                                        cacheName:(NSString *)cacheName
 {
     return [self fetchedResultsControllerForEntity:entityClass
-                                     withPredicate:predicate
-                                           orderBy:sortDescriptors
+                                     withPredicate:[MMPCoreDataHelper predicateFromObject:condition]
+                                   sortDescriptors:[MMPCoreDataHelper sortDescriptorsFromObject:order]
+                                        fetchLimit:numberOfRecords
+                                       fetchOffset:fromRecordNum
                                 sectionNameKeyPath:sectionNameKeyPath
-                                         cacheName:nil];
+                                         cacheName:cacheName];
 }
 
 - (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
                                                     withPredicate:(NSPredicate *)predicate
-                                                          orderBy:(NSArray *)sortDescriptors
+                                                  sortDescriptors:(NSArray *)sortDescriptors
+                                                       fetchLimit:(NSNumber *)fetchLimit
+                                                      fetchOffset:(NSNumber *)fetchOffset
                                                sectionNameKeyPath:(NSString *)sectionNameKeyPath
                                                         cacheName:(NSString *)cacheName
 {
@@ -618,6 +508,12 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     }
     if (sortDescriptors) {
         [fetchRequest setSortDescriptors:sortDescriptors];
+    }
+    if (fetchLimit) {
+        [fetchRequest setFetchLimit:[fetchLimit unsignedIntegerValue]];
+    }
+    if (fetchOffset) {
+        [fetchRequest setFetchOffset:[fetchOffset unsignedIntegerValue]];
     }
     return [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
                                                managedObjectContext:managedObjectContext

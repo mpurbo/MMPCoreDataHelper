@@ -8,6 +8,41 @@
 
 #import <CoreData/CoreData.h>
 
+typedef void(^MMPCoreDataErrorBlock)(NSError *error);
+
+@interface MMPCoreDataQueryable : NSObject
+
+/**---------------------------------------------------------------------------------------
+ * @name Constructing query
+ *  ---------------------------------------------------------------------------------------
+ */
+
+- (MMPCoreDataQueryable *)where:(id)condition, ...;
+- (MMPCoreDataQueryable *)order:(id)order;
+- (MMPCoreDataQueryable *)limit:(NSUInteger)numberOfRecords;
+- (MMPCoreDataQueryable *)offset:(NSUInteger)fromRecordNum;
+- (MMPCoreDataQueryable *)error:(MMPCoreDataErrorBlock)errorBlock;
+
+/**---------------------------------------------------------------------------------------
+ * @name NSFetchedResultsController specific query construction
+ *  ---------------------------------------------------------------------------------------
+ */
+
+- (MMPCoreDataQueryable *)sectionNameKeyPath:(NSString *)sectionNameKeyPath;
+- (MMPCoreDataQueryable *)cacheName:(NSString *)cacheName;
+
+/**---------------------------------------------------------------------------------------
+ * @name Producing result
+ *  ---------------------------------------------------------------------------------------
+ */
+
+- (id)first;
+- (NSArray *)array;
+- (NSUInteger)count;
+- (NSFetchedResultsController *)fetchedResultsController;
+
+@end;
+
 @interface NSManagedObject (MMPCoreDataActive)
 
 /**---------------------------------------------------------------------------------------
@@ -15,24 +50,15 @@
  *  ---------------------------------------------------------------------------------------
  */
 
-+ (id)create;
++ (instancetype)create;
 - (void)delete;
 - (void)save;
 
 /**---------------------------------------------------------------------------------------
- * @name Create, update, and delete
+ * @name Query
  *  ---------------------------------------------------------------------------------------
  */
 
-+ (NSArray *)all;
-+ (NSArray *)allOrderBy:(NSString *)column;
-+ (NSArray *)where:(NSString *)column isEqualTo:(id)object;
-+ (NSArray *)where:(NSString *)column isEqualTo:(id)object orderBy:(NSString *)orderByColumn;
-+ (NSArray *)where:(NSString *)column isLike:(id)object orderBy:(NSString *)orderByColumn;
-
-+ (id)oneWhere:(NSString *)column isEqualTo:(id)object;
-
-+ (NSFetchedResultsController *)fetchAllOrderBy:(NSString *)orderByColumn
-                             sectionNameKeyPath:(NSString *)sectionNameKeyPath;
++ (MMPCoreDataQueryable *)query;
 
 @end

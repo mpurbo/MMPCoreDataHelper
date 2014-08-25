@@ -28,7 +28,7 @@
     return self;
 }
 
-- (void)initDatabaseWithActiveRecord
+- (void)initDatabase
 {
     MMPArtist *artist = [MMPArtist create];
     artist.id = @"1";
@@ -60,7 +60,7 @@
     
     [[MMPCoreDataHelper instance] save];
     
-    NSLog(@"Database initialized, %lu artists created", (unsigned long)[MMPArtist all].count);
+    NSLog(@"Database initialized, %lu artists created", (unsigned long)[[MMPArtist query] count]);
 }
 
 - (void)viewDidLoad
@@ -68,14 +68,13 @@
     [super viewDidLoad];
     
     // the singleton instance of MMPCoreDataHelper
-    MMPCoreDataHelper *db = [MMPCoreDataHelper instance];
+    //MMPCoreDataHelper *db = [MMPCoreDataHelper instance];
     
     // check if the data is already created
-    NSArray *artists = [db objectsOfEntity:[MMPArtist class]];
-    if (!artists || artists.count == 0) {
-        [self initDatabaseWithActiveRecord];
-    } else {
+    if ([[MMPArtist query] count] > 0) {
         NSLog(@"Database ready");
+    } else {
+        [self initDatabase];
     }
     
     NSError *error;
@@ -86,7 +85,9 @@
     // run some dummy DB operation in background for fun
     dispatch_async(dispatch_queue_create("BkgQ", NULL), ^{
         
-        MMPArtist *artist = [MMPArtist oneWhere:@"name" isEqualTo:@"Pink Floyd"];
+        MMPArtist *artist = [[[MMPArtist query]
+                               where:@{@"name" : @"Pink Floyd"}]
+                               first];
         
         for (int i = 0; i < 5; i++) {
             // add a new album every 2 seconds
@@ -101,15 +102,17 @@
             NSLog(@"Dummy album with ID %@ saved", album.id);
         }
         
-        NSArray *dummyAlbums = [MMPAlbum where:@"id" isLike:@"dummy-*" orderBy:@"id"];
         
-        NSLog(@"%d dummy albums about to be deleted", [dummyAlbums count]);
-        for (MMPAlbum *album in dummyAlbums) {
-            // delete album every 2 seconds
-            sleep(2);
-            [album delete];
-            [album save];
-        }
+        [[[[[MMPAlbum query]
+             where:@"id LIKE %@", @"dummy-*"]
+             order:@"id"]
+             array]
+             enumerateObjectsUsingBlock:^(MMPAlbum *album, NSUInteger idx, BOOL *stop) {
+                 // delete album every 2 seconds
+                 sleep(2);
+                 [album delete];
+                 [album save];
+             }];
         
     });
 }
@@ -222,8 +225,10 @@
         return _fetchedResultsController;
     }
     
-    self.fetchedResultsController = [MMPAlbum fetchAllOrderBy:@"artist.name"
-                                           sectionNameKeyPath:@"artist.name"];
+    self.fetchedResultsController = [[[[MMPAlbum query]
+                                        order:@"artist.name"]
+                                        sectionNameKeyPath:@"artist.name"]
+                                        fetchedResultsController];
     
     _fetchedResultsController.delegate = self;
     
