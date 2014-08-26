@@ -30,33 +30,15 @@
 
 - (void)initDatabase
 {
-    MMPArtist *artist = [MMPArtist create];
-    artist.id = @"1";
-    artist.name = @"Daft Punk";
+    MMPArtist *artist = [[MMPArtist create] update:@{@"id" : @"1", @"name" : @"Daft Punk"}];
     
-    MMPAlbum *album = [MMPAlbum create];
-    album.id = @"1-1";
-    album.name = @"Homework";
-    album.artist = artist;
+    [[MMPAlbum create] update:@{@"id" : @"1-1", @"name" : @"Homework", @"artist" : artist}];
+    [[MMPAlbum create] update:@{@"id" : @"1-2", @"name" : @"Discovery", @"artist" : artist}];
     
-    album = [MMPAlbum create];
-    album.id = @"1-2";
-    album.name = @"Discovery";
-    album.artist = artist;
+    artist = [[MMPArtist create] update:@{@"id" : @"2", @"name" : @"Pink Floyd"}];
     
-    artist = [MMPArtist create];
-    artist.id = @"2";
-    artist.name = @"Pink Floyd";
-    
-    album = [MMPAlbum create];
-    album.id = @"2-1";
-    album.name = @"Animal";
-    album.artist = artist;
-    
-    album = [MMPAlbum create];
-    album.id = @"2-2";
-    album.name = @"The Wall";
-    album.artist = artist;
+    [[MMPAlbum create] update:@{@"id" : @"2-1", @"name" : @"Animal", @"artist" : artist}];
+    [[MMPAlbum create] update:@{@"id" : @"2-2", @"name" : @"The Wall", @"artist" : artist}];
     
     [[MMPCoreDataHelper instance] save];
     
@@ -66,9 +48,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    // the singleton instance of MMPCoreDataHelper
-    //MMPCoreDataHelper *db = [MMPCoreDataHelper instance];
     
     // check if the data is already created
     if ([[MMPArtist query] count] > 0) {
@@ -92,27 +71,23 @@
         for (int i = 0; i < 5; i++) {
             // add a new album every 2 seconds
             sleep(2);
-            //MMPAlbum *album = [db createObjectOfEntity:[MMPAlbum class]];
-            MMPAlbum *album = [MMPAlbum create];
-            album.id = [NSString stringWithFormat:@"dummy-%d", i];
-            album.name = [NSString stringWithFormat:@"Dummy %d", i];;
-            album.artist = artist;
-            [album save];
+            [[[MMPAlbum create]
+               update:@{@"id" : [NSString stringWithFormat:@"dummy-%d", i],
+                        @"name" : [NSString stringWithFormat:@"Dummy %d", i],
+                        @"artist" : artist}]
+               save];
             // table view should be automatically refreshed by now
-            NSLog(@"Dummy album with ID %@ saved", album.id);
         }
         
-        
-        [[[[[MMPAlbum query]
-             where:@"id LIKE %@", @"dummy-*"]
-             order:@"id"]
-             array]
-             enumerateObjectsUsingBlock:^(MMPAlbum *album, NSUInteger idx, BOOL *stop) {
+        [[[[MMPAlbum query]
+            where:@"id LIKE %@", @"dummy-*"]
+            order:@"id"]
+            each:^(MMPAlbum *album) {
                  // delete album every 2 seconds
                  sleep(2);
                  [album delete];
                  [album save];
-             }];
+            }];
         
     });
 }

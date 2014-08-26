@@ -9,6 +9,7 @@
 #import <CoreData/CoreData.h>
 
 typedef void(^MMPCoreDataErrorBlock)(NSError *error);
+typedef void(^MMPCoreDataRecordBlock)(id record);
 
 @interface MMPCoreDataQueryable : NSObject
 
@@ -37,9 +38,10 @@ typedef void(^MMPCoreDataErrorBlock)(NSError *error);
  */
 
 - (id)first;
-- (NSArray *)array;
-- (NSUInteger)count;
+- (NSArray *)all;
+- (void)each:(MMPCoreDataRecordBlock)recordBlock;
 - (NSFetchedResultsController *)fetchedResultsController;
+- (NSUInteger)count;
 
 @end;
 
@@ -51,7 +53,8 @@ typedef void(^MMPCoreDataErrorBlock)(NSError *error);
  */
 
 + (instancetype)create;
-- (void)delete;
+- (instancetype)update:(NSDictionary *)data;
+- (instancetype)delete;
 - (void)save;
 
 /**---------------------------------------------------------------------------------------

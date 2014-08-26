@@ -89,11 +89,11 @@
 
 - (id)first
 {
-    NSArray *result = [self array];
+    NSArray *result = [self all];
     return ([result count] > 0) ? [result objectAtIndex:0] : nil;
 }
 
-- (NSArray *)array
+- (NSArray *)all
 {
     NSError *error = nil;
     NSArray *ret = [[MMPCoreDataHelper instance] objectsOfEntity:_entityClass
@@ -111,6 +111,27 @@
     }
     
     return ret;
+}
+
+- (void)each:(MMPCoreDataRecordBlock)recordBlock
+{
+    NSArray *result = [self all];
+    if (result && [result count] > 0) {
+        for (id record in result) {
+            recordBlock(record);
+        }
+    }
+}
+
+- (NSFetchedResultsController *)fetchedResultsController
+{
+    return [[MMPCoreDataHelper instance] fetchedResultsControllerForEntity:_entityClass
+                                                                     where:_conditions
+                                                                     order:_order
+                                                                     limit:_numberOfRecords
+                                                                    offset:_fromRecordNum
+                                                        sectionNameKeyPath:_sectionNameKeyPath
+                                                                 cacheName:_cacheName];
 }
 
 - (NSUInteger)count
@@ -131,17 +152,6 @@
     return ret;
 }
 
-- (NSFetchedResultsController *)fetchedResultsController
-{
-    return [[MMPCoreDataHelper instance] fetchedResultsControllerForEntity:_entityClass
-                                                                     where:_conditions
-                                                                     order:_order
-                                                                     limit:_numberOfRecords
-                                                                    offset:_fromRecordNum
-                                                        sectionNameKeyPath:_sectionNameKeyPath
-                                                                 cacheName:_cacheName];
-}
-
 @end;
 
 @implementation NSManagedObject (MMPCoreDataActive)
@@ -151,9 +161,16 @@
     return [[MMPCoreDataHelper instance] createObjectOfEntity:[self class]];
 }
 
-- (void)delete
+- (instancetype)update:(NSDictionary *)data
+{
+    [self setValuesForKeysWithDictionary:data];
+    return self;
+}
+
+- (instancetype)delete
 {
     [[MMPCoreDataHelper instance] deleteObject:self];
+    return self;
 }
 
 - (void)save
