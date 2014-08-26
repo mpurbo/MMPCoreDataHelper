@@ -392,6 +392,11 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     return @[[self sortDescriptorFromObject:order]];
 }
 
++ (id)objectWithID:(NSManagedObjectID *)objectID
+{
+    return [[[MMPCoreDataHelper instance] managedObjectContext] objectWithID:objectID];
+}
+
 #pragma mark - Query producing multiple objects
 
 - (NSArray *)objectsOfEntity:(Class)entityClass

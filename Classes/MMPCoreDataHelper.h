@@ -141,6 +141,15 @@ extern NSString * const MMPDataAccessDidSaveNotification;
  *  ---------------------------------------------------------------------------------------
  */
 
+/**
+ *  A wrapper for NSManagedObjectContext's objectWithID:
+ *
+ *  @param objectID An object ID.
+ *
+ *  @return The object for the specified ID.
+ */
++ (id)objectWithID:(NSManagedObjectID *)objectID;
+
 + (NSPredicate *)predicateFromObject:(id)condition arguments:(va_list)arguments;
 
 /**---------------------------------------------------------------------------------------

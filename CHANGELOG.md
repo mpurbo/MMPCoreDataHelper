@@ -1,5 +1,9 @@
 # MMPCoreDataHelper CHANGELOG
 
+## 0.6.1
+
+* Add objectWithID: to MMPCoreDataHelper
+
 ## 0.6.0
 
 * Simplified base query functions (breaks compatibility with previous versions).

@@ -1,15 +1,14 @@
 Pod::Spec.new do |s|
   s.name             = "MMPCoreDataHelper"
-  s.version          = "0.6.0"
+  s.version          = "0.6.1"
   s.summary          = "A straightforward CoreData wrapper"
   s.description      = <<-DESC
-                       A no-nonsense straightforward helper library providing wrapper functions for common CoreData tasks.
+                       A lightweight helper library for common CoreData tasks providing data access pattern inspired by Active Record, LINQ, and functional programming.
 
                        Features:
-                       * Active Record-like wrapper for common tasks.
-                       * Thread-safe singleton instance easily accessible from anywhere. No more worrying whether a MOC belongs to the thread or not.
-                       * Automatic configuration and initialization (by convention over configuration), although manual configuration is still possible.
-                       * Simple functions for common CoreData usage pattern (query all objects, query by key-value, etc.), although direct CoreData access is still possible.
+                       * Thread-safe singleton instance easily accessible from anywhere. No more worrying whether a MOC (NSManagedObjectContext) belongs to the thread or not. The library makes sure that the MOC is local to the whichever thread you're calling the function from.
+                       * Active Record, LINQ-like functional wrapper for common tasks.
+                       * Automatic configuration and initialization (by convention over configuration) by default but manual configuration is still possible.
                        * Get notified on errors and other CoreData events using NSNotificationCenter.
                        DESC
   s.homepage         = "https://github.com/mpurbo/MMPCoreDataHelper"
