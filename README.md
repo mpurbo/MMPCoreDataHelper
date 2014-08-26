@@ -66,11 +66,11 @@ NSArray *artists = [[MMPArtist query] all];
                   NSLog(@"%@", artist.name);
               }];
 
-// or just get the first one
-MMPArtist *firstP = [[[[MMPArtist query]
-                        where:@"name LIKE %@", @"P*"]
-                        order:@"id"] 
-                        first];
+// or just get the first record of the query
+// note that you can also pass NSDictionary of key = value constraint to where function
+MMPArtist *artist = [[[MMPArtist query]
+                                 where:@{@"name" : @"Pink Floyd"}]
+                                 first];
 ```
 
 ### Optional Initialization
