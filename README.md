@@ -42,7 +42,7 @@ MMPArtist *artist = [[[MMPArtist create]
 [[MMPArtist create] update:@{@"id" : @"2", @"name" : @"Pink Floyd"}];
 [[MMPArtist create] update:@{@"id" : @"3", @"name" : @"Porcupine Tree"}];
 
-[[MMPCoreDataHelper instance] save];
+[MMPCoreDataHelper save];
 
 ```
 

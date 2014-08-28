@@ -1,5 +1,9 @@
 # MMPCoreDataHelper CHANGELOG
 
+## 0.6.2
+
+* To simplify invocation, most utility functions are now static (breaks backward-compatibility).
+
 ## 0.6.1
 
 * Add objectWithID: to MMPCoreDataHelper

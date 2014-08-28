@@ -96,12 +96,12 @@
 - (NSArray *)all
 {
     NSError *error = nil;
-    NSArray *ret = [[MMPCoreDataHelper instance] objectsOfEntity:_entityClass
-                                                           where:_conditions
-                                                           order:_order
-                                                           limit:_numberOfRecords
-                                                          offset:_fromRecordNum
-                                                           error:&error];
+    NSArray *ret = [MMPCoreDataHelper objectsOfEntity:_entityClass
+                                                where:_conditions
+                                                order:_order
+                                                limit:_numberOfRecords
+                                               offset:_fromRecordNum
+                                                error:&error];
     if (error) {
         if (_errorBlock) {
             _errorBlock(error);
@@ -125,21 +125,21 @@
 
 - (NSFetchedResultsController *)fetchedResultsController
 {
-    return [[MMPCoreDataHelper instance] fetchedResultsControllerForEntity:_entityClass
-                                                                     where:_conditions
-                                                                     order:_order
-                                                                     limit:_numberOfRecords
-                                                                    offset:_fromRecordNum
-                                                        sectionNameKeyPath:_sectionNameKeyPath
-                                                                 cacheName:_cacheName];
+    return [MMPCoreDataHelper fetchedResultsControllerForEntity:_entityClass
+                                                          where:_conditions
+                                                          order:_order
+                                                          limit:_numberOfRecords
+                                                         offset:_fromRecordNum
+                                             sectionNameKeyPath:_sectionNameKeyPath
+                                                      cacheName:_cacheName];
 }
 
 - (NSUInteger)count
 {
     NSError *error = nil;
-    NSUInteger ret = [[MMPCoreDataHelper instance] countObjectsOfEntity:_entityClass
-                                                                  where:_conditions
-                                                                  error:&error];
+    NSUInteger ret = [MMPCoreDataHelper countObjectsOfEntity:_entityClass
+                                                       where:_conditions
+                                                       error:&error];
     
     if (error) {
         if (_errorBlock) {
@@ -158,7 +158,7 @@
 
 + (instancetype)create
 {
-    return [[MMPCoreDataHelper instance] createObjectOfEntity:[self class]];
+    return [MMPCoreDataHelper createObjectOfEntity:[self class]];
 }
 
 - (instancetype)update:(NSDictionary *)data
@@ -169,13 +169,13 @@
 
 - (instancetype)delete
 {
-    [[MMPCoreDataHelper instance] deleteObject:self];
+    [MMPCoreDataHelper deleteObject:self];
     return self;
 }
 
 - (void)save
 {
-    [[MMPCoreDataHelper instance] save];
+    [MMPCoreDataHelper save];
 }
 
 + (MMPCoreDataQueryable *)query

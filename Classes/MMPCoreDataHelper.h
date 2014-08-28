@@ -106,7 +106,7 @@ extern NSString * const MMPDataAccessDidSaveNotification;
  *  If this method is called on a background thread, the changes will be propagated to main thread 
  *  context as well.
  */
-- (void)save;
++ (void)save;
 
 /**---------------------------------------------------------------------------------------
  * @name Create, update, and delete
@@ -120,21 +120,21 @@ extern NSString * const MMPDataAccessDidSaveNotification;
  *
  *  @return A new object of entity type as specified.
  */
-- (id)createObjectOfEntity:(Class)entityClass;
++ (id)createObjectOfEntity:(Class)entityClass;
 
 /**
  *  Deletes a single object.
  *
  *  @param object Object to be deleted
  */
-- (void)deleteObject:(NSManagedObject *)object;
++ (void)deleteObject:(NSManagedObject *)object;
 
 /**
  *  Deletes all objects of an entity type (clear table).
  *
  *  @param entityClass Class extended from NSManagedObject
  */
-- (void)deleteObjectsOfEntity:(Class)entityClass;
++ (void)deleteObjectsOfEntity:(Class)entityClass;
 
 /**---------------------------------------------------------------------------------------
  * @name Utilities
@@ -157,14 +157,14 @@ extern NSString * const MMPDataAccessDidSaveNotification;
  *  ---------------------------------------------------------------------------------------
  */
 
-- (NSArray *)objectsOfEntity:(Class)entityClass
++ (NSArray *)objectsOfEntity:(Class)entityClass
                        where:(id)condition
                        order:(id)order
                        limit:(NSNumber *)numberOfRecords
                       offset:(NSNumber *)fromRecordNum
                        error:(NSError **)error;
 
-- (NSArray *)objectsOfEntity:(Class)entityClass
++ (NSArray *)objectsOfEntity:(Class)entityClass
                withPredicate:(NSPredicate *)predicate
              sortDescriptors:(NSArray *)sortDescriptors
                   fetchLimit:(NSNumber *)fetchLimit
@@ -176,11 +176,11 @@ extern NSString * const MMPDataAccessDidSaveNotification;
  *  ---------------------------------------------------------------------------------------
  */
 
-- (NSUInteger)countObjectsOfEntity:(Class)entityClass
++ (NSUInteger)countObjectsOfEntity:(Class)entityClass
                              where:(id)condition
                              error:(NSError **)error;
 
-- (NSUInteger)countObjectsOfEntity:(Class)entityClass
++ (NSUInteger)countObjectsOfEntity:(Class)entityClass
                      withPredicate:(NSPredicate *)predicate
                              error:(NSError **)error;
 
@@ -189,7 +189,7 @@ extern NSString * const MMPDataAccessDidSaveNotification;
  *  ---------------------------------------------------------------------------------------
  */
 
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
++ (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
                                                             where:(id)condition
                                                             order:(id)order
                                                             limit:(NSNumber *)numberOfRecords
@@ -197,7 +197,7 @@ extern NSString * const MMPDataAccessDidSaveNotification;
                                                sectionNameKeyPath:(NSString *)sectionNameKeyPath
                                                         cacheName:(NSString *)cacheName;
 
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
++ (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
                                                     withPredicate:(NSPredicate *)predicate
                                                   sortDescriptors:(NSArray *)sortDescriptors
                                                        fetchLimit:(NSNumber *)fetchLimit

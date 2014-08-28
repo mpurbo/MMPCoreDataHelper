@@ -244,7 +244,7 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     }
 }
 
-- (void)save
+- (void)_save
 {
     if ([NSThread isMainThread]) {
         [self saveContextForMainThread];
@@ -263,9 +263,14 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     }
 }
 
++ (void)save
+{
+    [[MMPCoreDataHelper instance] _save];
+}
+
 #pragma mark - Create, update, and delete
 
-- (id)createObjectOfEntity:(Class)entityClass
+- (id)_createObjectOfEntity:(Class)entityClass
 {
     NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
     NSEntityDescription *entity = [NSEntityDescription entityForName:NSStringFromClass(entityClass)
@@ -276,12 +281,22 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
 	return managedObject;
 }
 
-- (void)deleteObject:(NSManagedObject *)object
++ (id)createObjectOfEntity:(Class)entityClass
+{
+    return [[MMPCoreDataHelper instance] _createObjectOfEntity:entityClass];
+}
+
+- (void)_deleteObject:(NSManagedObject *)object
 {
     [[self managedObjectContext] deleteObject:object];
 }
 
-- (void)deleteObjectsOfEntity:(Class)entityClass
++ (void)deleteObject:(NSManagedObject *)object
+{
+    [[MMPCoreDataHelper instance] _deleteObject:object];
+}
+
+- (void)_deleteObjectsOfEntity:(Class)entityClass
 {
     NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
     
@@ -301,6 +316,11 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     if (![managedObjectContext save:&error]) {
     	NSLog(@"[ERROR] Error deleting %@ - error:%@", NSStringFromClass(entityClass), error);
     }
+}
+
++ (void)deleteObjectsOfEntity:(Class)entityClass
+{
+    [[MMPCoreDataHelper instance] _deleteObjectsOfEntity:entityClass];
 }
 
 #pragma mark - Utilities
@@ -399,27 +419,27 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
 
 #pragma mark - Query producing multiple objects
 
-- (NSArray *)objectsOfEntity:(Class)entityClass
++ (NSArray *)objectsOfEntity:(Class)entityClass
                        where:(id)condition
                        order:(id)order
                        limit:(NSNumber *)numberOfRecords
                       offset:(NSNumber *)fromRecordNum
                        error:(NSError **)error
 {
-    return [self objectsOfEntity:entityClass
-                   withPredicate:[MMPCoreDataHelper predicateFromObject:condition]
-                 sortDescriptors:[MMPCoreDataHelper sortDescriptorsFromObject:order]
-                      fetchLimit:numberOfRecords
-                     fetchOffset:fromRecordNum
-                           error:error];
+    return [MMPCoreDataHelper objectsOfEntity:entityClass
+                                withPredicate:[MMPCoreDataHelper predicateFromObject:condition]
+                              sortDescriptors:[MMPCoreDataHelper sortDescriptorsFromObject:order]
+                                   fetchLimit:numberOfRecords
+                                  fetchOffset:fromRecordNum
+                                        error:error];
 }
 
-- (NSArray *)objectsOfEntity:(Class)entityClass
-               withPredicate:(NSPredicate *)predicate
-             sortDescriptors:(NSArray *)sortDescriptors
-                  fetchLimit:(NSNumber *)fetchLimit
-                 fetchOffset:(NSNumber *)fetchOffset
-                       error:(NSError **)error
+- (NSArray *)_objectsOfEntity:(Class)entityClass
+                withPredicate:(NSPredicate *)predicate
+              sortDescriptors:(NSArray *)sortDescriptors
+                   fetchLimit:(NSNumber *)fetchLimit
+                  fetchOffset:(NSNumber *)fetchOffset
+                        error:(NSError **)error
 {
     NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
     
@@ -442,18 +462,33 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     return [managedObjectContext executeFetchRequest:request error:error];
 }
 
++ (NSArray *)objectsOfEntity:(Class)entityClass
+               withPredicate:(NSPredicate *)predicate
+             sortDescriptors:(NSArray *)sortDescriptors
+                  fetchLimit:(NSNumber *)fetchLimit
+                 fetchOffset:(NSNumber *)fetchOffset
+                       error:(NSError **)error
+{
+    return [[MMPCoreDataHelper instance] _objectsOfEntity:entityClass
+                                            withPredicate:predicate
+                                          sortDescriptors:sortDescriptors
+                                               fetchLimit:fetchLimit
+                                              fetchOffset:fetchOffset
+                                                    error:error];
+}
+
 #pragma mark - Aggregate query
 
-- (NSUInteger)countObjectsOfEntity:(Class)entityClass
++ (NSUInteger)countObjectsOfEntity:(Class)entityClass
                              where:(id)condition
                              error:(NSError **)error
 {
-    return [self countObjectsOfEntity:entityClass
-                        withPredicate:[MMPCoreDataHelper predicateFromObject:condition]
-                                error:error];
+    return [MMPCoreDataHelper countObjectsOfEntity:entityClass
+                                     withPredicate:[MMPCoreDataHelper predicateFromObject:condition]
+                                             error:error];
 }
 
-- (NSUInteger)countObjectsOfEntity:(Class)entityClass
+- (NSUInteger)_countObjectsOfEntity:(Class)entityClass
                      withPredicate:(NSPredicate *)predicate
                              error:(NSError **)error
 {
@@ -475,9 +510,18 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     return count;
 }
 
++ (NSUInteger)countObjectsOfEntity:(Class)entityClass
+                     withPredicate:(NSPredicate *)predicate
+                             error:(NSError **)error
+{
+    return [[MMPCoreDataHelper instance] _countObjectsOfEntity:entityClass
+                                                 withPredicate:predicate
+                                                         error:error];
+}
+
 #pragma mark - Query producing NSFetchedResultsController
 
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
++ (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
                                                             where:(id)condition
                                                             order:(id)order
                                                             limit:(NSNumber *)numberOfRecords
@@ -485,16 +529,16 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
                                                sectionNameKeyPath:(NSString *)sectionNameKeyPath
                                                         cacheName:(NSString *)cacheName
 {
-    return [self fetchedResultsControllerForEntity:entityClass
-                                     withPredicate:[MMPCoreDataHelper predicateFromObject:condition]
-                                   sortDescriptors:[MMPCoreDataHelper sortDescriptorsFromObject:order]
-                                        fetchLimit:numberOfRecords
-                                       fetchOffset:fromRecordNum
-                                sectionNameKeyPath:sectionNameKeyPath
-                                         cacheName:cacheName];
+    return [MMPCoreDataHelper fetchedResultsControllerForEntity:entityClass
+                                                  withPredicate:[MMPCoreDataHelper predicateFromObject:condition]
+                                                sortDescriptors:[MMPCoreDataHelper sortDescriptorsFromObject:order]
+                                                     fetchLimit:numberOfRecords
+                                                    fetchOffset:fromRecordNum
+                                             sectionNameKeyPath:sectionNameKeyPath
+                                                      cacheName:cacheName];
 }
 
-- (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
+- (NSFetchedResultsController *)_fetchedResultsControllerForEntity:(Class)entityClass
                                                     withPredicate:(NSPredicate *)predicate
                                                   sortDescriptors:(NSArray *)sortDescriptors
                                                        fetchLimit:(NSNumber *)fetchLimit
@@ -524,6 +568,23 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
                                                managedObjectContext:managedObjectContext
                                                  sectionNameKeyPath:sectionNameKeyPath
                                                           cacheName:cacheName];
+}
+
++ (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
+                                                    withPredicate:(NSPredicate *)predicate
+                                                  sortDescriptors:(NSArray *)sortDescriptors
+                                                       fetchLimit:(NSNumber *)fetchLimit
+                                                      fetchOffset:(NSNumber *)fetchOffset
+                                               sectionNameKeyPath:(NSString *)sectionNameKeyPath
+                                                        cacheName:(NSString *)cacheName
+{
+    return [[MMPCoreDataHelper instance] _fetchedResultsControllerForEntity:entityClass
+                                                              withPredicate:predicate
+                                                            sortDescriptors:sortDescriptors
+                                                                 fetchLimit:fetchLimit
+                                                                fetchOffset:fetchOffset
+                                                         sectionNameKeyPath:sectionNameKeyPath
+                                                                  cacheName:cacheName];
 }
 
 @end

@@ -40,7 +40,7 @@
     [[MMPAlbum create] update:@{@"id" : @"2-1", @"name" : @"Animal", @"artist" : artist}];
     [[MMPAlbum create] update:@{@"id" : @"2-2", @"name" : @"The Wall", @"artist" : artist}];
     
-    [[MMPCoreDataHelper instance] save];
+    [MMPCoreDataHelper save];
     
     NSLog(@"Database initialized, %lu artists created", (unsigned long)[[MMPArtist query] count]);
 }
