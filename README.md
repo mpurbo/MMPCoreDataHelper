@@ -48,7 +48,7 @@ MMPArtist *artist = [[[MMPArtist create]
 
 ### Fetching Data
 
-To fetch data you need to first construct the query (defining constraints) then execute it to produce result. Call `query` to start building, then use `where` function to specify filter, `order` to define sort specification, `limit` to limit the number of result, `limit` to specify starting record number, and `error` to specify code block to be executed when error happens. For constructing `NSFetchedResultsController`, there are two additional functions: `sectionNameKeyPath`, and `cacheName`.
+To fetch data you need to first construct the query (defining constraints) then execute it to produce result. Call `query` to start building, then use `where` function to specify filter, `order` to define sort specification, `limit` to limit the number of result, `offset` to specify starting record number, and `error` to specify code block to be executed when error happens. For constructing `NSFetchedResultsController`, there are two additional functions: `sectionNameKeyPath`, and `cacheName`.
 
 Once a query is constructed, there are several functions to actually produce result. Use `all` to get all records matches the specified constraints as array, `first` to get just the first one, `count` to just count the number of records without actually fetching anything, `each` to traverse each of the records using block, and `fetchedResultsController` to return `NSFetchedResultsController`.
 
