@@ -23,7 +23,7 @@ Include the header file in your code:
 ```objectivec
 #import <MMPCoreDataHelper/MMPCoreDataHelper.h>
 ```
-In general, there is no need for database initialization and you can go right ahead directly using your model object to create and query records. See below for cases that requires you to explicitly set names before you start using the library.
+In general, there is no need for database initialization and you can go right ahead directly using your model object to create and query records. See below for cases that require you to explicitly set names before you start using the library.
 
 ### Create, Update, Delete, Save
 
