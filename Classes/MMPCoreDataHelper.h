@@ -32,6 +32,11 @@
 #import "NSManagedObject+MMPCoreDataActive.h"
 
 /**
+ *  Library's error domain
+ */
+extern NSString * const MMPCoreDataErrorDomain;
+
+/**
  *  Notification sent on error commiting changes. Observe this notification on NSNotificationManager to 
  *  be notified on errors. The actual NSError object can be accessed from userInfo (with key "error") 
  *  passed along with NSNotification.
@@ -100,6 +105,13 @@ extern NSString * const MMPDataAccessDidSaveNotification;
  *  @return Path to physical sqlite file.
  */
 - (NSString *)sqliteStorePath;
+
+/**
+ *  Gets description of an entity class.
+ *
+ *  @return Description of the entity class specified.
+ */
++ (NSEntityDescription *)entityDescriptionOf:(Class)entityClass;
 
 /**
  *  Commits all changes asynchronously regardless of which thread this method is called from. 

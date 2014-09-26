@@ -42,6 +42,37 @@
     
     [MMPCoreDataHelper save];
     
+    // and some more data from CSV
+    
+    // import artist from CSV as is
+    // "import" will automatically save the imported records
+    [[[[[[MMPArtist importer]
+                    sourceType:MMPCoreDataSourceTypeCSV]
+                    sourceURL:[[NSBundle mainBundle] URLForResource: @"artists" withExtension:@"csv"]]
+                    error:^(NSError *error) {
+                        NSLog(@"[ERROR] error importing from artists CSV: %@", error);
+                    }]
+                    each:^(MMPArtist *importedArtist) {
+                        NSLog(@"artist %@ imported", importedArtist.name);
+                    }]
+                    import];
+    
+    [[[[[[[MMPAlbum importer]
+                    sourceType:MMPCoreDataSourceTypeCSV]
+                    sourceURL:[[NSBundle mainBundle] URLForResource: @"albums" withExtension:@"csv"]]
+                    error:^(NSError *error) {
+                        NSLog(@"[ERROR] error importing from albums CSV: %@", error);
+                    }]
+                    convert:@"artist" using:^id(id value) {
+                        return [[[MMPArtist query]
+                                 where:@{@"name" : value}]
+                                first];
+                    }]
+                    each:^(MMPAlbum *importedAlbum) {
+                        NSLog(@"album %@ imported for artist %@", importedAlbum.name, importedAlbum.artist.name);
+                    }]
+                    import];
+    
     NSLog(@"Database initialized, %lu artists created", (unsigned long)[[MMPArtist query] count]);
 }
 

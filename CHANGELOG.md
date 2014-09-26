@@ -1,5 +1,9 @@
 # MMPCoreDataHelper CHANGELOG
 
+## 0.7.0
+
+* Add import from CSV
+
 ## 0.6.2
 
 * To simplify invocation, most utility functions are now static (breaks backward-compatibility).

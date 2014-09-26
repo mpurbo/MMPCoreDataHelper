@@ -26,6 +26,8 @@
 		A91B853219010A31005BE5B5 /* CoreDataHelperExample.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = A91B853019010A31005BE5B5 /* CoreDataHelperExample.xcdatamodeld */; };
 		A91B853819012C2C005BE5B5 /* MMPArtist.m in Sources */ = {isa = PBXBuildFile; fileRef = A91B853719012C2C005BE5B5 /* MMPArtist.m */; };
 		A91B853B19012C2D005BE5B5 /* MMPAlbum.m in Sources */ = {isa = PBXBuildFile; fileRef = A91B853A19012C2D005BE5B5 /* MMPAlbum.m */; };
+		A97571F519D5511C008AD70D /* artists.csv in Resources */ = {isa = PBXBuildFile; fileRef = A97571F319D5511C008AD70D /* artists.csv */; };
+		A97571F919D5527D008AD70D /* albums.csv in Resources */ = {isa = PBXBuildFile; fileRef = A97571F719D5527D008AD70D /* albums.csv */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +68,8 @@
 		A91B853719012C2C005BE5B5 /* MMPArtist.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMPArtist.m; sourceTree = "<group>"; };
 		A91B853919012C2D005BE5B5 /* MMPAlbum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMPAlbum.h; sourceTree = "<group>"; };
 		A91B853A19012C2D005BE5B5 /* MMPAlbum.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMPAlbum.m; sourceTree = "<group>"; };
+		A97571F319D5511C008AD70D /* artists.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = artists.csv; sourceTree = "<group>"; };
+		A97571F719D5527D008AD70D /* albums.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = albums.csv; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -179,6 +183,8 @@
 				A91B853A19012C2D005BE5B5 /* MMPAlbum.m */,
 				A91B853619012C2C005BE5B5 /* MMPArtist.h */,
 				A91B853719012C2C005BE5B5 /* MMPArtist.m */,
+				A97571F319D5511C008AD70D /* artists.csv */,
+				A97571F719D5527D008AD70D /* albums.csv */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -262,9 +268,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A97571F919D5527D008AD70D /* albums.csv in Resources */,
 				A91B85081901051B005BE5B5 /* Images.xcassets in Resources */,
 				A91B84FA1901051B005BE5B5 /* InfoPlist.strings in Resources */,
 				A91B85031901051B005BE5B5 /* Main.storyboard in Resources */,
+				A97571F519D5511C008AD70D /* artists.csv in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

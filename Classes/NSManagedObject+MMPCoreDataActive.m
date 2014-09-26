@@ -152,7 +152,204 @@
     return ret;
 }
 
-@end;
+@end
+
+@interface MMPCoreDataImportable()
+
+@property (nonatomic, strong) Class entityClass;
+@property (nonatomic, strong) NSURL *sourceURL;
+@property (nonatomic, assign) MMPCoreDataSourceType sourceType;
+@property (nonatomic, assign) NSDateFormatter *dateFormatter;
+@property (nonatomic, copy) MMPCoreDataErrorBlock errorBlock;
+@property (nonatomic, copy) MMPCoreDataRecordBlock recordBlock;
+@property (nonatomic, strong) NSMutableDictionary *customConverters;
+
+- (id)initWithClass:(Class)entityClass;
+
+@end
+
+@implementation MMPCoreDataImportable
+
+- (id)initWithClass:(Class)entityClass;
+{
+    if (self = [super init]) {
+        self.entityClass = entityClass;
+        self.sourceURL = nil;
+        self.sourceType = MMPCoreDataSourceTypeUnknown;
+        self.dateFormatter = nil;
+        self.errorBlock = nil;
+        self.customConverters = [NSMutableDictionary new];
+    }
+    return self;
+}
+
+- (MMPCoreDataImportable *)dateFormatter:(NSDateFormatter *)dateFormatter
+{
+    self.dateFormatter = dateFormatter;
+    return self;
+}
+
+- (MMPCoreDataImportable *)sourceType:(MMPCoreDataSourceType)sourceType
+{
+    self.sourceType = sourceType;
+    return self;
+}
+
+- (MMPCoreDataImportable *)sourceURL:(NSURL *)sourceURL
+{
+    self.sourceURL = sourceURL;
+    return self;
+}
+
+- (MMPCoreDataImportable *)error:(MMPCoreDataErrorBlock)errorBlock
+{
+    self.errorBlock = errorBlock;
+    return self;
+}
+
+- (MMPCoreDataImportable *)convert:(NSString *)fieldName using:(MMPCoreDataMapBlock)mapBlock
+{
+    [self.customConverters setObject:[mapBlock copy] forKey:fieldName];
+    return self;
+}
+
+- (MMPCoreDataImportable *)each:(MMPCoreDataRecordBlock)recordBlock
+{
+    self.recordBlock = recordBlock;
+    return self;
+}
+
+- (void)import
+{
+    if (_sourceType == MMPCoreDataSourceTypeCSV) {
+        [self importCSV];
+    } else {
+        NSError *error = [[NSError alloc] initWithDomain:MMPCoreDataErrorDomain code:MMPCoreDataErrorCodeInvalidDataSourceType userInfo:nil];
+        if (_errorBlock) {
+            _errorBlock(error);
+        } else {
+            NSLog(@"[ERROR] %@", error);
+        }
+    }
+}
+
+- (void)importCSV
+{
+    if (!_sourceURL) {
+        NSError *error = [[NSError alloc] initWithDomain:MMPCoreDataErrorDomain code:MMPCoreDataErrorCodeInvalidDataSourceURL userInfo:nil];
+        if (_errorBlock) {
+            _errorBlock(error);
+        } else {
+            NSLog(@"[ERROR] %@", error);
+        }
+        return;
+    }
+    
+    NSEntityDescription *entityDescription = [MMPCoreDataHelper entityDescriptionOf:_entityClass];
+    NSDictionary *attributesByName = [entityDescription attributesByName];
+    NSDictionary *relationshipsByName = [entityDescription relationshipsByName];
+    
+    NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
+    [nf setNumberStyle:NSNumberFormatterDecimalStyle];
+
+    __weak typeof(self) weakSelf = self;
+    __block NSError *error = nil;
+    
+    [[[[[MMPCSV readURL:_sourceURL]
+                format:[[[MMPCSVFormat defaultFormat]
+                                       useFirstLineAsKeys]
+                                       sanitizeFields]]
+                error:^(NSError *error) {
+                    __strong typeof(weakSelf) strongSelf = weakSelf;
+                    if (strongSelf.errorBlock) {
+                        strongSelf.errorBlock(error);
+                    } else {
+                        NSLog(@"[ERROR] %@", error);
+                    }
+                }]
+                end:^{
+                    [MMPCoreDataHelper save];
+                }]
+                each:^(NSDictionary *record) {
+                    __strong typeof(weakSelf) strongSelf = weakSelf;
+                    if (error) {
+                        return;
+                    }
+                    NSManagedObject *obj = [MMPCoreDataHelper createObjectOfEntity:_entityClass];
+                    for (NSString *key in [record allKeys]) {
+                        
+                        NSString *value = [record objectForKey:key];
+                        NSString *lowercaseValue = [value lowercaseString];
+                        
+                        NSAttributeDescription *attributeDescription = [attributesByName objectForKey:key];
+                        NSRelationshipDescription *relationshipDescription = [relationshipsByName objectForKey:key];
+                        if (!attributeDescription && !relationshipDescription) {
+                            error = [[NSError alloc] initWithDomain:MMPCoreDataErrorDomain
+                                                               code:MMPCoreDataErrorCodeInvalidFieldName
+                                                           userInfo:@{@"invalidFieldName" : key}];
+                            if (strongSelf.errorBlock) {
+                                strongSelf.errorBlock(error);
+                            } else {
+                                NSLog(@"[ERROR] %@", error);
+                            }
+                            return;
+                        }
+                        
+                        MMPCoreDataMapBlock customConverter = [strongSelf.customConverters objectForKey:key];
+                        if (customConverter) {
+                            [obj setValue:customConverter(value) forKey:key];
+                        } else {
+                            switch([attributeDescription attributeType]) {
+                                case NSInteger64AttributeType:
+                                case NSInteger32AttributeType:
+                                case NSInteger16AttributeType:
+                                    [obj setValue:[nf numberFromString:value]
+                                           forKey:key];
+                                    break;
+                                case NSDecimalAttributeType:
+                                    [obj setValue:[NSDecimalNumber decimalNumberWithString:value]
+                                           forKey:key];
+                                    break;
+                                case NSDoubleAttributeType:
+                                case NSFloatAttributeType:
+                                    [obj setValue:[NSNumber numberWithDouble:[value doubleValue]]
+                                           forKey:key];
+                                    break;
+                                case NSBooleanAttributeType:
+                                    [obj setValue:[NSNumber numberWithBool:([@"true" isEqualToString:lowercaseValue] ||
+                                                                            [@"yes" isEqualToString:lowercaseValue])]
+                                           forKey:key];
+                                    break;
+                                case NSDateAttributeType:
+                                    if (strongSelf.dateFormatter) {
+                                        [obj setValue:[strongSelf.dateFormatter dateFromString:value]
+                                               forKey:key];
+                                    } else {
+                                        error = [[NSError alloc] initWithDomain:MMPCoreDataErrorDomain
+                                                                           code:MMPCoreDataErrorCodeDateFormatterUnspecified
+                                                                       userInfo:@{@"invalidFieldName" : key}];
+                                        if (strongSelf.errorBlock) {
+                                            strongSelf.errorBlock(error);
+                                        } else {
+                                            NSLog(@"[ERROR] %@", error);
+                                        }
+                                        return;
+                                    }
+                                    break;
+                                default:
+                                    [obj setValue:value forKey:key];
+                                    break;
+                            }
+                        }
+                    }
+                    
+                    if (strongSelf.recordBlock) {
+                        strongSelf.recordBlock(obj);
+                    }
+                }];
+}
+
+@end
 
 @implementation NSManagedObject (MMPCoreDataActive)
 
@@ -176,6 +373,11 @@
 - (void)save
 {
     [MMPCoreDataHelper save];
+}
+
++ (MMPCoreDataImportable *)importer
+{
+    return [[MMPCoreDataImportable alloc] initWithClass:[self class]];
 }
 
 + (MMPCoreDataQueryable *)query

@@ -6,6 +6,7 @@ A lightweight helper library for common CoreData tasks providing data access pat
 Features:
 * Thread-safe singleton instance easily accessible from anywhere. No more worrying whether a MOC (NSManagedObjectContext) belongs to the thread or not. The library makes sure that the MOC is local to the whichever thread you're calling the function from.
 * Functional [Active Record](http://en.wikipedia.org/wiki/Active_record_pattern) + [LINQ](http://en.wikipedia.org/wiki/Language_Integrated_Query)-inspired wrapper for common tasks.
+* Import data directly from CSV file.
 * Automatic configuration and initialization (by convention over configuration) by default but manual configuration is still possible.
 * Get notified on errors and other CoreData events using NSNotificationCenter.
 
@@ -73,6 +74,41 @@ MMPArtist *artist = [[[MMPArtist query]
                                  first];
 ```
 
+### Importing Data from CSV File
+
+To import data from CSV file, call `importer` to start building the importer, use `sourceURL` to specify the CSV source URL, `error` to specify code block to be executed on errors, `each` to observe newly imported record, and finally call `import` to start executing.
+```objectivec
+[[[[[[MMPArtist importer]
+                sourceType:MMPCoreDataSourceTypeCSV]
+                sourceURL:[[NSBundle mainBundle] URLForResource: @"artists" withExtension:@"csv"]]
+                error:^(NSError *error) {
+                    NSLog(@"[ERROR] error importing from artists CSV: %@", error);
+                }]
+                each:^(MMPArtist *importedArtist) {
+                    NSLog(@"artist %@ imported", importedArtist.name);
+                }]
+                import];
+```
+
+For custom data conversion from the value in the CSV to the value in the your NSManagedObject (for example to create relationship object), use `convert:using:` as shown in the following example:
+```objectivec
+[[[[[[[MMPAlbum importer]
+                sourceType:MMPCoreDataSourceTypeCSV]
+                sourceURL:[[NSBundle mainBundle] URLForResource: @"albums" withExtension:@"csv"]]
+                error:^(NSError *error) {
+                    NSLog(@"[ERROR] error importing from albums CSV: %@", error);
+                }]
+                convert:@"artist" using:^id(id value) {
+                    return [[[MMPArtist query]
+                             where:@{@"name" : value}]
+                            first];
+                }]
+                each:^(MMPAlbum *importedAlbum) {
+                    NSLog(@"album %@ imported for artist %@", importedAlbum.name, importedAlbum.artist.name);
+                }]
+                import];
+```
+
 ### Optional Initialization
 
 No initialization or configuration necessary assuming the data model (momd) is named exactly the same as the application name. Otherwise, the data model name has to be set before calling any other of singleton's function:
@@ -108,4 +144,5 @@ MMPCoreDataHelper is maintained by [Mamad Purbo](https://twitter.com/purubo)
 ## Copyright and License
 
 MMPCoreDataHelper is available under the MIT license. See the LICENSE file for more info.
-This library contains ideas and implementations adapted from ObjectiveRecord (https://github.com/supermarin/ObjectiveRecord). Copyright (c) 2014 Marin Usalj <http://supermar.in>
+
+This library uses code adapted from ObjectiveRecord (https://github.com/supermarin/ObjectiveRecord). Copyright (c) 2014 Marin Usalj <http://supermar.in>

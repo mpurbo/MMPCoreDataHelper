@@ -7,15 +7,29 @@
 //
 
 #import <CoreData/CoreData.h>
+#import <MMPCSVUtil/MMPCSVUtil.h>
 
 typedef void(^MMPCoreDataErrorBlock)(NSError *error);
 typedef void(^MMPCoreDataRecordBlock)(id record);
+typedef id(^MMPCoreDataMapBlock)(id value);
+
+typedef NS_ENUM(NSInteger, MMPCoreDataSourceType) {
+    MMPCoreDataSourceTypeUnknown = 0,
+    MMPCoreDataSourceTypeCSV = 1
+};
+
+typedef NS_ENUM(NSInteger, MMPCoreDataErrorCode) {
+    MMPCoreDataErrorCodeInvalidDataSourceType = 101,
+    MMPCoreDataErrorCodeInvalidDataSourceURL = 102,
+    MMPCoreDataErrorCodeInvalidFieldName = 201,
+    MMPCoreDataErrorCodeDateFormatterUnspecified = 202
+};
 
 @interface MMPCoreDataQueryable : NSObject
 
 /**---------------------------------------------------------------------------------------
  * @name Constructing query
- *  ---------------------------------------------------------------------------------------
+ * ---------------------------------------------------------------------------------------
  */
 
 - (MMPCoreDataQueryable *)where:(id)condition, ...;
@@ -26,7 +40,7 @@ typedef void(^MMPCoreDataRecordBlock)(id record);
 
 /**---------------------------------------------------------------------------------------
  * @name NSFetchedResultsController specific query construction
- *  ---------------------------------------------------------------------------------------
+ * ---------------------------------------------------------------------------------------
  */
 
 - (MMPCoreDataQueryable *)sectionNameKeyPath:(NSString *)sectionNameKeyPath;
@@ -34,7 +48,7 @@ typedef void(^MMPCoreDataRecordBlock)(id record);
 
 /**---------------------------------------------------------------------------------------
  * @name Producing result
- *  ---------------------------------------------------------------------------------------
+ * ---------------------------------------------------------------------------------------
  */
 
 - (id)first;
@@ -43,13 +57,36 @@ typedef void(^MMPCoreDataRecordBlock)(id record);
 - (NSFetchedResultsController *)fetchedResultsController;
 - (NSUInteger)count;
 
-@end;
+@end
+
+@interface MMPCoreDataImportable : NSObject
+
+/**---------------------------------------------------------------------------------------
+ * @name Importer construction
+ * ---------------------------------------------------------------------------------------
+ */
+
+- (MMPCoreDataImportable *)dateFormatter:(NSDateFormatter *)dateFormatter;
+- (MMPCoreDataImportable *)sourceType:(MMPCoreDataSourceType)sourceType;
+- (MMPCoreDataImportable *)sourceURL:(NSURL *)sourceURL;
+- (MMPCoreDataImportable *)error:(MMPCoreDataErrorBlock)errorBlock;
+- (MMPCoreDataImportable *)convert:(NSString *)fieldName using:(MMPCoreDataMapBlock)mapBlock;
+- (MMPCoreDataImportable *)each:(MMPCoreDataRecordBlock)recordBlock;
+
+/**---------------------------------------------------------------------------------------
+ * @name Execution
+ * ---------------------------------------------------------------------------------------
+ */
+
+- (void)import;
+
+@end
 
 @interface NSManagedObject (MMPCoreDataActive)
 
 /**---------------------------------------------------------------------------------------
  * @name Create, update, and delete
- *  ---------------------------------------------------------------------------------------
+ * ---------------------------------------------------------------------------------------
  */
 
 + (instancetype)create;
@@ -58,8 +95,15 @@ typedef void(^MMPCoreDataRecordBlock)(id record);
 - (void)save;
 
 /**---------------------------------------------------------------------------------------
+ * @name Data import
+ * ---------------------------------------------------------------------------------------
+ */
+
++ (MMPCoreDataImportable *)importer;
+
+/**---------------------------------------------------------------------------------------
  * @name Query
- *  ---------------------------------------------------------------------------------------
+ * ---------------------------------------------------------------------------------------
  */
 
 + (MMPCoreDataQueryable *)query;

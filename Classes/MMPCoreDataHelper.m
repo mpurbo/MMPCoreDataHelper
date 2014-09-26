@@ -29,6 +29,7 @@
 
 #import "MMPCoreDataHelper.h"
 
+NSString * const MMPCoreDataErrorDomain = @"org.purbo.coredata";
 NSString * const MMPDataAccessSaveErrorNotification = @"MMPDataAccessSaveErrorNotification";
 NSString * const MMPDataAccessDidSaveNotification = @"MMPDataAccessDidSaveNotification";
 
@@ -284,6 +285,18 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
 + (id)createObjectOfEntity:(Class)entityClass
 {
     return [[MMPCoreDataHelper instance] _createObjectOfEntity:entityClass];
+}
+
+- (NSEntityDescription *)_entityDescriptionOf:(Class)entityClass
+{
+    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
+    return [NSEntityDescription entityForName:NSStringFromClass(entityClass)
+                                              inManagedObjectContext:managedObjectContext];
+}
+
++ (NSEntityDescription *)entityDescriptionOf:(Class)entityClass
+{
+    return [[MMPCoreDataHelper instance] _entityDescriptionOf:entityClass];
 }
 
 - (void)_deleteObject:(NSManagedObject *)object
