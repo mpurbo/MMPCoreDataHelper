@@ -100,8 +100,8 @@ For custom data conversion (for example to populate relationship object), use `c
                 }]
                 convert:@"artist" using:^id(id value) {
                     return [[[MMPArtist query]
-                             where:@{@"name" : value}]
-                            first];
+                                        where:@{@"name" : value}]
+                                        first];
                 }]
                 each:^(MMPAlbum *importedAlbum) {
                     NSLog(@"album %@ imported for artist %@", importedAlbum.name, importedAlbum.artist.name);
