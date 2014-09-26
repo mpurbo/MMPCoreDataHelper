@@ -90,7 +90,7 @@ To import data from CSV file, call `importer` to start building the importer, us
                 import];
 ```
 
-For custom data conversion from the value in the CSV to the value in the your NSManagedObject (for example to create relationship object), use `convert:using:` as shown in the following example:
+For custom data conversion (for example to populate relationship object), use `convert:using:` as shown in the following example:
 ```objectivec
 [[[[[[[MMPAlbum importer]
                 sourceType:MMPCoreDataSourceTypeCSV]
