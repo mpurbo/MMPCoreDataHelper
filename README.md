@@ -78,6 +78,9 @@ MMPArtist *artist = [[[MMPArtist query]
 
 To import data from CSV file, call `importer` to start building the importer, use `sourceURL` to specify the CSV source URL, `error` to specify code block to be executed on errors, `each` to observe newly imported record, and finally call `import` to start executing.
 ```objectivec
+// source CSV (with first line header/field names):
+// id,name
+// 100,Yes
 [[[[[[MMPArtist importer]
                 sourceType:MMPCoreDataSourceTypeCSV]
                 sourceURL:[[NSBundle mainBundle] URLForResource: @"artists" withExtension:@"csv"]]
@@ -90,15 +93,39 @@ To import data from CSV file, call `importer` to start building the importer, us
                 import];
 ```
 
-For custom data conversion (for example to populate relationship object), use `convert:using:` as shown in the following example:
+You can also filter unnecessary field values so that it won't be added to the record by using `filter:using:` method:
 ```objectivec
+// CSV format:
+// id,name,genre
+// 100,Yes,"Progressive Rock"
+// "genre" field will be ignored
+[[[[[[[MMPArtist importer]
+                 sourceType:MMPCoreDataSourceTypeCSV]
+                 sourceURL:[[NSBundle mainBundle] URLForResource: @"artists" withExtension:@"csv"]]
+                 error:^(NSError *error) {
+                     NSLog(@"[ERROR] error importing from artists CSV: %@", error);
+                 }]
+                 filter:@"genre" using:^BOOL(id record) {
+                     return NO;
+                 }]
+                 each:^(MMPArtist *importedArtist) {
+                     NSLog(@"artist %@ imported", importedArtist.name);
+                 }]
+                 import];
+```
+
+For custom data conversion (for example to populate relationship object), use `map:using:` as shown in the following example:
+```objectivec
+// source CSV (with first line header/field names):
+// id,name,artist
+// "100-1","The Yes Album",Yes
 [[[[[[[MMPAlbum importer]
                 sourceType:MMPCoreDataSourceTypeCSV]
                 sourceURL:[[NSBundle mainBundle] URLForResource: @"albums" withExtension:@"csv"]]
                 error:^(NSError *error) {
                     NSLog(@"[ERROR] error importing from albums CSV: %@", error);
                 }]
-                convert:@"artist" using:^id(id value) {
+                map:@"artist" using:^id(id value) {
                     return [[[MMPArtist query]
                                         where:@{@"name" : value}]
                                         first];

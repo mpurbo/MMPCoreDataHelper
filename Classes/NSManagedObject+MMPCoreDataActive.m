@@ -162,7 +162,8 @@
 @property (nonatomic, assign) NSDateFormatter *dateFormatter;
 @property (nonatomic, copy) MMPCoreDataErrorBlock errorBlock;
 @property (nonatomic, copy) MMPCoreDataRecordBlock recordBlock;
-@property (nonatomic, strong) NSMutableDictionary *customConverters;
+@property (nonatomic, strong) NSMutableDictionary *customFilters;
+@property (nonatomic, strong) NSMutableDictionary *customMappers;
 
 - (id)initWithClass:(Class)entityClass;
 
@@ -178,7 +179,8 @@
         self.sourceType = MMPCoreDataSourceTypeUnknown;
         self.dateFormatter = nil;
         self.errorBlock = nil;
-        self.customConverters = [NSMutableDictionary new];
+        self.customFilters = [NSMutableDictionary new];
+        self.customMappers = [NSMutableDictionary new];
     }
     return self;
 }
@@ -207,9 +209,15 @@
     return self;
 }
 
-- (MMPCoreDataImportable *)convert:(NSString *)fieldName using:(MMPCoreDataMapBlock)mapBlock
+- (MMPCoreDataImportable *)filter:(NSString *)fieldName using:(MMPCoreDataFilterBlock)filterBlock
 {
-    [self.customConverters setObject:[mapBlock copy] forKey:fieldName];
+    [self.customFilters setObject:[filterBlock copy] forKey:fieldName];
+    return self;
+}
+
+- (MMPCoreDataImportable *)map:(NSString *)fieldName using:(MMPCoreDataMapBlock)mapBlock
+{
+    [self.customMappers setObject:[mapBlock copy] forKey:fieldName];
     return self;
 }
 
@@ -281,6 +289,11 @@
                         NSString *value = [record objectForKey:key];
                         NSString *lowercaseValue = [value lowercaseString];
                         
+                        MMPCoreDataMapBlock customFilter = [strongSelf.customFilters objectForKey:key];
+                        if (customFilter && !customFilter(value)) {
+                            continue;
+                        }
+                        
                         NSAttributeDescription *attributeDescription = [attributesByName objectForKey:key];
                         NSRelationshipDescription *relationshipDescription = [relationshipsByName objectForKey:key];
                         if (!attributeDescription && !relationshipDescription) {
@@ -295,9 +308,9 @@
                             return;
                         }
                         
-                        MMPCoreDataMapBlock customConverter = [strongSelf.customConverters objectForKey:key];
-                        if (customConverter) {
-                            [obj setValue:customConverter(value) forKey:key];
+                        MMPCoreDataMapBlock customMapper = [strongSelf.customMappers objectForKey:key];
+                        if (customMapper) {
+                            [obj setValue:customMapper(value) forKey:key];
                         } else {
                             switch([attributeDescription attributeType]) {
                                 case NSInteger64AttributeType:

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "MMPCoreDataHelper"
-  s.version          = "0.7.0"
+  s.version          = "0.7.1"
   s.summary          = "A straightforward CoreData wrapper"
   s.description      = <<-DESC
                        A lightweight helper library for common CoreData tasks providing data access pattern inspired by Active Record, LINQ, and functional programming.

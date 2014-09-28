@@ -1,5 +1,9 @@
 # MMPCoreDataHelper CHANGELOG
 
+## 0.7.1
+
+* map (previously `convert`) & filter for CSV import
+
 ## 0.7.0
 
 * Add import from CSV

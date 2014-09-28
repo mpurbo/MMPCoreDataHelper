@@ -1,3 +1,3 @@
-id,name
-100,Yes
-101,"Iron Maiden"
+id,name,genre
+100,Yes,"Progressive Rock"
+101,"Iron Maiden","Heavy Metal"

@@ -46,16 +46,24 @@
     
     // import artist from CSV as is
     // "import" will automatically save the imported records
-    [[[[[[MMPArtist importer]
-                    sourceType:MMPCoreDataSourceTypeCSV]
-                    sourceURL:[[NSBundle mainBundle] URLForResource: @"artists" withExtension:@"csv"]]
-                    error:^(NSError *error) {
-                        NSLog(@"[ERROR] error importing from artists CSV: %@", error);
-                    }]
-                    each:^(MMPArtist *importedArtist) {
-                        NSLog(@"artist %@ imported", importedArtist.name);
-                    }]
-                    import];
+    
+    // CSV format:
+    // id,name,genre
+    // 100,Yes,"Progressive Rock"
+    // "genre" field will be ignored
+    [[[[[[[MMPArtist importer]
+                     sourceType:MMPCoreDataSourceTypeCSV]
+                     sourceURL:[[NSBundle mainBundle] URLForResource: @"artists" withExtension:@"csv"]]
+                     error:^(NSError *error) {
+                         NSLog(@"[ERROR] error importing from artists CSV: %@", error);
+                     }]
+                     filter:@"genre" using:^BOOL(id record) {
+                         return NO;
+                     }]
+                     each:^(MMPArtist *importedArtist) {
+                         NSLog(@"artist %@ imported", importedArtist.name);
+                     }]
+                     import];
     
     [[[[[[[MMPAlbum importer]
                     sourceType:MMPCoreDataSourceTypeCSV]
@@ -63,7 +71,7 @@
                     error:^(NSError *error) {
                         NSLog(@"[ERROR] error importing from albums CSV: %@", error);
                     }]
-                    convert:@"artist" using:^id(id value) {
+                    map:@"artist" using:^id(id value) {
                         return [[[MMPArtist query]
                                             where:@{@"name" : value}]
                                             first];
