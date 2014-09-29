@@ -1,5 +1,9 @@
 # MMPCoreDataHelper CHANGELOG
 
+## 0.7.4
+
+* bugfix: not trying to convert to NSDate when field value from CSV is empty.
+
 ## 0.7.3
 
 * `map` for record transformation, `map:using:` for field transformation.

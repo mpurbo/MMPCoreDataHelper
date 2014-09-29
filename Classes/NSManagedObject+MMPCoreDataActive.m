@@ -342,8 +342,10 @@
                                     break;
                                 case NSDateAttributeType:
                                     if (strongSelf.dateFormatter) {
-                                        [obj setValue:[strongSelf.dateFormatter dateFromString:value]
-                                               forKey:key];
+                                        if (value && [value length] > 0) {
+                                            [obj setValue:[strongSelf.dateFormatter dateFromString:value]
+                                                   forKey:key];
+                                        }
                                     } else {
                                         error = [[NSError alloc] initWithDomain:MMPCoreDataErrorDomain
                                                                            code:MMPCoreDataErrorCodeDateFormatterUnspecified
