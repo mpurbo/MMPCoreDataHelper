@@ -371,6 +371,11 @@
     return [MMPCoreDataHelper createObjectOfEntity:[self class]];
 }
 
++ (void)clear
+{
+    [MMPCoreDataHelper deleteObjectsOfEntity:[self class]];
+}
+
 - (instancetype)update:(NSDictionary *)data
 {
     [self setValuesForKeysWithDictionary:data];

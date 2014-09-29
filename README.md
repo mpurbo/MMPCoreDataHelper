@@ -44,7 +44,11 @@ MMPArtist *artist = [[[MMPArtist create]
 [[MMPArtist create] update:@{@"id" : @"3", @"name" : @"Porcupine Tree"}];
 
 [MMPCoreDataHelper save];
+```
 
+Use `clear` to delete all records in an entity:
+```objectivec
+[MMPAlbum clear];
 ```
 
 ### Fetching Data

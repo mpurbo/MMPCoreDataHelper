@@ -1,5 +1,9 @@
 # MMPCoreDataHelper CHANGELOG
 
+## 0.7.2
+
+* `clear` for deleting all records of an entity.
+
 ## 0.7.1
 
 * map (previously `convert`) & filter for CSV import

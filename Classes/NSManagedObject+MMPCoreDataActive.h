@@ -91,7 +91,18 @@ typedef NS_ENUM(NSInteger, MMPCoreDataErrorCode) {
  * ---------------------------------------------------------------------------------------
  */
 
+/**
+*  Create new empty record.
+*
+*  @return Newly created record.
+*/
 + (instancetype)create;
+
+/**
+ *  Delete all records.
+ */
++ (void)clear;
+
 - (instancetype)update:(NSDictionary *)data;
 - (instancetype)delete;
 - (void)save;

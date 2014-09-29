@@ -90,10 +90,12 @@
     
     // check if the data is already created
     if ([[MMPArtist query] count] > 0) {
-        NSLog(@"Database ready");
-    } else {
-        [self initDatabase];
+        NSLog(@"Database exist, clearing tables.");
+        [MMPAlbum clear];
+        [MMPArtist clear];
     }
+    
+    [self initDatabase];
     
     NSError *error;
 	if (![[self fetchedResultsController] performFetch:&error]) {
