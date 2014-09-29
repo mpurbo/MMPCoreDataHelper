@@ -12,7 +12,7 @@
 typedef void(^MMPCoreDataErrorBlock)(NSError *error);
 typedef void(^MMPCoreDataRecordBlock)(id record);
 typedef BOOL(^MMPCoreDataFilterBlock)(id record);
-typedef id(^MMPCoreDataMapBlock)(id value);
+typedef id(^MMPCoreDataMapBlock)(id value, NSUInteger index);
 
 typedef NS_ENUM(NSInteger, MMPCoreDataSourceType) {
     MMPCoreDataSourceTypeUnknown = 0,
@@ -73,6 +73,7 @@ typedef NS_ENUM(NSInteger, MMPCoreDataErrorCode) {
 - (MMPCoreDataImportable *)error:(MMPCoreDataErrorBlock)errorBlock;
 - (MMPCoreDataImportable *)filter:(NSString *)fieldName using:(MMPCoreDataFilterBlock)filterBlock;
 - (MMPCoreDataImportable *)map:(NSString *)fieldName using:(MMPCoreDataMapBlock)mapBlock;
+- (MMPCoreDataImportable *)map:(MMPCoreDataMapBlock)mapBlock;
 - (MMPCoreDataImportable *)each:(MMPCoreDataRecordBlock)recordBlock;
 
 /**---------------------------------------------------------------------------------------

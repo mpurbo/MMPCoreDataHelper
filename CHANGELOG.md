@@ -1,5 +1,9 @@
 # MMPCoreDataHelper CHANGELOG
 
+## 0.7.3
+
+* `map` for record transformation, `map:using:` for field transformation.
+
 ## 0.7.2
 
 * `clear` for deleting all records of an entity.

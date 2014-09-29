@@ -161,6 +161,7 @@
 @property (nonatomic, assign) MMPCoreDataSourceType sourceType;
 @property (nonatomic, assign) NSDateFormatter *dateFormatter;
 @property (nonatomic, copy) MMPCoreDataErrorBlock errorBlock;
+@property (nonatomic, copy) MMPCoreDataMapBlock mapBlock;
 @property (nonatomic, copy) MMPCoreDataRecordBlock recordBlock;
 @property (nonatomic, strong) NSMutableDictionary *customFilters;
 @property (nonatomic, strong) NSMutableDictionary *customMappers;
@@ -221,6 +222,12 @@
     return self;
 }
 
+- (MMPCoreDataImportable *)map:(MMPCoreDataMapBlock)mapBlock
+{
+    self.mapBlock = mapBlock;
+    return self;
+}
+
 - (MMPCoreDataImportable *)each:(MMPCoreDataRecordBlock)recordBlock
 {
     self.recordBlock = recordBlock;
@@ -278,7 +285,7 @@
                 end:^{
                     [MMPCoreDataHelper save];
                 }]
-                each:^(NSDictionary *record) {
+                each:^(NSDictionary *record, NSUInteger index) {
                     __strong typeof(weakSelf) strongSelf = weakSelf;
                     if (error) {
                         return;
@@ -289,7 +296,7 @@
                         NSString *value = [record objectForKey:key];
                         NSString *lowercaseValue = [value lowercaseString];
                         
-                        MMPCoreDataMapBlock customFilter = [strongSelf.customFilters objectForKey:key];
+                        MMPCoreDataFilterBlock customFilter = [strongSelf.customFilters objectForKey:key];
                         if (customFilter && !customFilter(value)) {
                             continue;
                         }
@@ -310,7 +317,7 @@
                         
                         MMPCoreDataMapBlock customMapper = [strongSelf.customMappers objectForKey:key];
                         if (customMapper) {
-                            [obj setValue:customMapper(value) forKey:key];
+                            [obj setValue:customMapper(value, index) forKey:key];
                         } else {
                             switch([attributeDescription attributeType]) {
                                 case NSInteger64AttributeType:
@@ -357,7 +364,7 @@
                     }
                     
                     if (strongSelf.recordBlock) {
-                        strongSelf.recordBlock(obj);
+                        strongSelf.recordBlock(strongSelf.mapBlock ? strongSelf.mapBlock(obj, index) : obj);
                     }
                 }];
 }

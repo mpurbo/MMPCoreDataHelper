@@ -118,26 +118,36 @@ You can also filter unnecessary field values so that it won't be added to the re
                  import];
 ```
 
-For custom data conversion (for example to populate relationship object), use `map:using:` as shown in the following example:
+For field-level transformation and custom data conversion (e.g. to populate relationship object) use `map:using:`. For record-level transformation use `map` as shown in the following example:
 ```objectivec
 // source CSV (with first line header/field names):
-// id,name,artist
-// "100-1","The Yes Album",Yes
-[[[[[[[MMPAlbum importer]
-                sourceType:MMPCoreDataSourceTypeCSV]
-                sourceURL:[[NSBundle mainBundle] URLForResource: @"albums" withExtension:@"csv"]]
-                error:^(NSError *error) {
-                    NSLog(@"[ERROR] error importing from albums CSV: %@", error);
-                }]
-                map:@"artist" using:^id(id value) {
-                    return [[[MMPArtist query]
-                                        where:@{@"name" : value}]
-                                        first];
-                }]
-                each:^(MMPAlbum *importedAlbum) {
-                    NSLog(@"album %@ imported for artist %@", importedAlbum.name, importedAlbum.artist.name);
-                }]
-                import];
+// name,artist
+// "The Yes Album",Yes
+[[[[[[[[MMPAlbum importer]
+                 sourceType:MMPCoreDataSourceTypeCSV]
+                 sourceURL:[[NSBundle mainBundle] URLForResource: @"albums" withExtension:@"csv"]]
+                 error:^(NSError *error) {
+                     NSLog(@"[ERROR] error importing from albums CSV: %@", error);
+                 }]
+                 // map field "artist" from artist's name to NSManagedObject so that it can be set as relationship
+                 map:@"artist" using:^MMPArtist *(NSString *value, NSUInteger index) {
+                     return [[[MMPArtist query]
+                                         where:@{@"name" : value}]
+                                         first];
+                 }]
+                 // map record (populates ID)
+                 map:^id(MMPAlbum *importedAlbum, NSUInteger index) {
+                     // generate album ID based on artist ID and record index (line on the csv file)
+                     importedAlbum.id = [NSString stringWithFormat:@"%@-%lu", importedAlbum.artist.id, (unsigned long)index];
+                     return importedAlbum;
+                 }]
+                 each:^(MMPAlbum *importedAlbum) {
+                     NSLog(@"album %@(id = %@) imported for artist %@",
+                           importedAlbum.name,
+                           importedAlbum.id,
+                           importedAlbum.artist.name);
+                 }]
+                 import];
 ```
 
 ### Optional Initialization

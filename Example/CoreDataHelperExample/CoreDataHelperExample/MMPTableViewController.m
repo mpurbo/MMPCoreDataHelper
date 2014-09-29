@@ -65,21 +65,31 @@
                      }]
                      import];
     
-    [[[[[[[MMPAlbum importer]
-                    sourceType:MMPCoreDataSourceTypeCSV]
-                    sourceURL:[[NSBundle mainBundle] URLForResource: @"albums" withExtension:@"csv"]]
-                    error:^(NSError *error) {
-                        NSLog(@"[ERROR] error importing from albums CSV: %@", error);
-                    }]
-                    map:@"artist" using:^id(id value) {
-                        return [[[MMPArtist query]
-                                            where:@{@"name" : value}]
-                                            first];
-                    }]
-                    each:^(MMPAlbum *importedAlbum) {
-                        NSLog(@"album %@ imported for artist %@", importedAlbum.name, importedAlbum.artist.name);
-                    }]
-                    import];
+    [[[[[[[[MMPAlbum importer]
+                     sourceType:MMPCoreDataSourceTypeCSV]
+                     sourceURL:[[NSBundle mainBundle] URLForResource: @"albums" withExtension:@"csv"]]
+                     error:^(NSError *error) {
+                         NSLog(@"[ERROR] error importing from albums CSV: %@", error);
+                     }]
+                     // map field "artist" from artist's name to object so that it can be set as relationship
+                     map:@"artist" using:^MMPArtist *(NSString *value, NSUInteger index) {
+                         return [[[MMPArtist query]
+                                             where:@{@"name" : value}]
+                                             first];
+                     }]
+                     // map record (populates ID)
+                     map:^id(MMPAlbum *importedAlbum, NSUInteger index) {
+                         // generate album ID based on artist ID and record index (line on the csv file)
+                         importedAlbum.id = [NSString stringWithFormat:@"%@-%lu", importedAlbum.artist.id, (unsigned long)index];
+                         return importedAlbum;
+                     }]
+                     each:^(MMPAlbum *importedAlbum) {
+                         NSLog(@"album %@(id = %@) imported for artist %@",
+                               importedAlbum.name,
+                               importedAlbum.id,
+                               importedAlbum.artist.name);
+                     }]
+                     import];
     
     NSLog(@"Database initialized, %lu artists created", (unsigned long)[[MMPArtist query] count]);
 }
