@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "MMPCoreDataHelper"
-  s.version          = "0.7.4"
+  s.version          = "0.7.5"
   s.summary          = "A straightforward CoreData wrapper"
   s.description      = <<-DESC
                        A lightweight helper library for common CoreData tasks providing data access pattern inspired by Active Record, LINQ, and functional programming.
@@ -18,8 +18,9 @@ Pod::Spec.new do |s|
   s.source           = { :git => "https://github.com/mpurbo/MMPCoreDataHelper.git", :tag => s.version.to_s }
   s.social_media_url = 'https://twitter.com/purubo'
 
-  s.platform         = :ios
   s.ios.deployment_target = '7.0'
+  s.osx.deployment_target = '10.7'
+
   s.source_files     = 'Classes'
   s.framework        = 'CoreData'
   s.dependency 'MMPCSVUtil'

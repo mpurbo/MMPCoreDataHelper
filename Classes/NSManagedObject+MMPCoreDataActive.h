@@ -39,6 +39,7 @@ typedef NS_ENUM(NSInteger, MMPCoreDataErrorCode) {
 - (MMPCoreDataQueryable *)offset:(NSUInteger)fromRecordNum;
 - (MMPCoreDataQueryable *)error:(MMPCoreDataErrorBlock)errorBlock;
 
+#if TARGET_OS_IPHONE
 /**---------------------------------------------------------------------------------------
  * @name NSFetchedResultsController specific query construction
  * ---------------------------------------------------------------------------------------
@@ -46,6 +47,7 @@ typedef NS_ENUM(NSInteger, MMPCoreDataErrorCode) {
 
 - (MMPCoreDataQueryable *)sectionNameKeyPath:(NSString *)sectionNameKeyPath;
 - (MMPCoreDataQueryable *)cacheName:(NSString *)cacheName;
+#endif
 
 /**---------------------------------------------------------------------------------------
  * @name Producing result
@@ -55,7 +57,9 @@ typedef NS_ENUM(NSInteger, MMPCoreDataErrorCode) {
 - (id)first;
 - (NSArray *)all;
 - (void)each:(MMPCoreDataRecordBlock)recordBlock;
+#if TARGET_OS_IPHONE
 - (NSFetchedResultsController *)fetchedResultsController;
+#endif
 - (NSUInteger)count;
 
 @end

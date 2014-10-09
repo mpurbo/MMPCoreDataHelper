@@ -196,6 +196,7 @@ extern NSString * const MMPDataAccessDidSaveNotification;
                      withPredicate:(NSPredicate *)predicate
                              error:(NSError **)error;
 
+#if TARGET_OS_IPHONE
 /**---------------------------------------------------------------------------------------
  * @name Query producing NSFetchedResultsController
  *  ---------------------------------------------------------------------------------------
@@ -216,5 +217,5 @@ extern NSString * const MMPDataAccessDidSaveNotification;
                                                       fetchOffset:(NSNumber *)fetchOffset
                                                sectionNameKeyPath:(NSString *)sectionNameKeyPath
                                                         cacheName:(NSString *)cacheName;
-
+#endif
 @end

@@ -532,6 +532,8 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
                                                          error:error];
 }
 
+#if TARGET_OS_IPHONE
+
 #pragma mark - Query producing NSFetchedResultsController
 
 + (NSFetchedResultsController *)fetchedResultsControllerForEntity:(Class)entityClass
@@ -599,5 +601,7 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
                                                          sectionNameKeyPath:sectionNameKeyPath
                                                                   cacheName:cacheName];
 }
+
+#endif
 
 @end

@@ -17,8 +17,10 @@
 @property (nonatomic, strong) id order;
 @property (nonatomic, strong) NSNumber *numberOfRecords;
 @property (nonatomic, strong) NSNumber *fromRecordNum;
+#if TARGET_OS_IPHONE
 @property (nonatomic, strong) NSString *sectionNameKeyPath;
 @property (nonatomic, strong) NSString *cacheName;
+#endif
 @property (nonatomic, copy) MMPCoreDataErrorBlock errorBlock;
 
 - (id)initWithClass:(Class)entityClass;
@@ -35,8 +37,10 @@
         self.order = nil;
         self.numberOfRecords = nil;
         self.fromRecordNum = nil;
+#if TARGET_OS_IPHONE
         self.sectionNameKeyPath = nil;
         self.cacheName = nil;
+#endif
         self.errorBlock = nil;
     }
     return self;
@@ -75,6 +79,7 @@
     return self;
 }
 
+#if TARGET_OS_IPHONE
 - (MMPCoreDataQueryable *)sectionNameKeyPath:(NSString *)sectionNameKeyPath
 {
     _sectionNameKeyPath = sectionNameKeyPath;
@@ -86,6 +91,7 @@
     _cacheName = cacheName;
     return self;
 }
+#endif
 
 - (id)first
 {
@@ -123,6 +129,7 @@
     }
 }
 
+#if TARGET_OS_IPHONE
 - (NSFetchedResultsController *)fetchedResultsController
 {
     return [MMPCoreDataHelper fetchedResultsControllerForEntity:_entityClass
@@ -133,6 +140,7 @@
                                              sectionNameKeyPath:_sectionNameKeyPath
                                                       cacheName:_cacheName];
 }
+#endif
 
 - (NSUInteger)count
 {

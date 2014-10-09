@@ -1,5 +1,9 @@
 # MMPCoreDataHelper CHANGELOG
 
+## 0.7.5
+
+* Add OSX support.
+
 ## 0.7.4
 
 * bugfix: not trying to convert to NSDate when field value from CSV is empty.
