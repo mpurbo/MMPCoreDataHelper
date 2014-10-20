@@ -160,6 +160,40 @@
     return ret;
 }
 
+- (id)_aggregate:(NSString *)aggregateFunction of:(NSString *)attributeName
+{
+    NSError *error = nil;
+    id result = [MMPCoreDataHelper runAggregate:aggregateFunction
+                                          where:_conditions
+                                   forAttribute:attributeName
+                                       ofEntity:_entityClass
+                                          error:&error];
+    if (error) {
+        if (_errorBlock) {
+            _errorBlock(error);
+        } else {
+            NSLog(@"[ERROR] Unhandled MMPCoreDataHelper aggregate min error: %@", error);
+        }
+    }
+    
+    return result;
+}
+
+- (id)min:(NSString *)attributeName
+{
+    return [self _aggregate:@"min:" of:attributeName];
+}
+
+- (id)max:(NSString *)attributeName
+{
+    return [self _aggregate:@"max:" of:attributeName];
+}
+
+- (id)sum:(NSString *)attributeName
+{
+    return [self _aggregate:@"sum:" of:attributeName];
+}
+
 @end
 
 @interface MMPCoreDataImportable()

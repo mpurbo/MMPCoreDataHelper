@@ -532,6 +532,78 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
                                                          error:error];
 }
 
++ (id)runAggregate:(NSString *)aggregateFunction
+             where:(id)condition
+      forAttribute:(NSString *)attributeName
+          ofEntity:(Class)entityClass
+             error:(NSError **)error
+{
+    return [self runAggregate:aggregateFunction
+                withPredicate:[MMPCoreDataHelper predicateFromObject:condition]
+                 forAttribute:attributeName
+                     ofEntity:entityClass
+                        error:error];
+}
+
++ (id)runAggregate:(NSString *)aggregateFunction
+     withPredicate:(NSPredicate *)predicate
+      forAttribute:(NSString *)attributeName
+          ofEntity:(Class)entityClass
+             error:(NSError **)error
+{
+    return [[MMPCoreDataHelper instance] _runAggregate:aggregateFunction
+                                         withPredicate:predicate
+                                          forAttribute:attributeName
+                                              ofEntity:entityClass
+                                                 error:error];
+}
+
+- (id)_runAggregate:(NSString *)aggregateFunction
+      withPredicate:(NSPredicate *)predicate
+       forAttribute:(NSString *)attributeName
+           ofEntity:(Class)entityClass
+              error:(NSError **)error
+{
+    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
+    NSEntityDescription *entityDescription = [NSEntityDescription entityForName:NSStringFromClass(entityClass)
+                                                         inManagedObjectContext:managedObjectContext];
+    NSDictionary *attributesByName = [entityDescription attributesByName];
+    NSAttributeDescription *attributeDescription = [attributesByName objectForKey:attributeName];
+    
+    // fetch request
+    
+    NSFetchRequest *fetchRequest = [NSFetchRequest new];
+    [fetchRequest setEntity:entityDescription];
+    [fetchRequest setResultType:NSDictionaryResultType];
+    if (predicate) {
+        [fetchRequest setPredicate:predicate];
+    }
+    
+    // aggregate expression
+    
+    NSExpression *keyExpression = [NSExpression expressionForKeyPath:attributeName];
+    NSExpression *aggrExpression = [NSExpression expressionForFunction:aggregateFunction
+                                                             arguments:@[keyExpression]];
+    NSExpressionDescription *exprDescription = [NSExpressionDescription new];
+    [exprDescription setName:attributeName];
+    [exprDescription setExpression:aggrExpression];
+    [exprDescription setExpressionResultType:[attributeDescription attributeType]];
+    
+    [fetchRequest setPropertiesToFetch:@[exprDescription]];
+    
+    NSArray *results = [managedObjectContext executeFetchRequest:fetchRequest error:error];
+    if (!*error) {
+        if ([results count] > 0) {
+            return [[results objectAtIndex:0] valueForKey:attributeName];
+        } else {
+            NSLog(@"[WARN] Aggregate result is empty");
+            return nil;
+        }
+    } else {
+        return nil;
+    }
+}
+
 #if TARGET_OS_IPHONE
 
 #pragma mark - Query producing NSFetchedResultsController

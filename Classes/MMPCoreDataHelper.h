@@ -196,6 +196,18 @@ extern NSString * const MMPDataAccessDidSaveNotification;
                      withPredicate:(NSPredicate *)predicate
                              error:(NSError **)error;
 
++ (id)runAggregate:(NSString *)aggregateFunction
+             where:(id)condition
+      forAttribute:(NSString *)attributeName
+          ofEntity:(Class)entityClass
+             error:(NSError **)error;
+
++ (id)runAggregate:(NSString *)aggregateFunction
+     withPredicate:(NSPredicate *)predicate
+      forAttribute:(NSString *)attributeName
+          ofEntity:(Class)entityClass
+             error:(NSError **)error;
+
 #if TARGET_OS_IPHONE
 /**---------------------------------------------------------------------------------------
  * @name Query producing NSFetchedResultsController

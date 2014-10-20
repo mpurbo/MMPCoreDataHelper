@@ -14,6 +14,7 @@
 
 @property (nonatomic, retain) NSString * id;
 @property (nonatomic, retain) NSString * name;
+@property (nonatomic, retain) NSNumber * members;
 @property (nonatomic, retain) NSSet *albums;
 @end
 

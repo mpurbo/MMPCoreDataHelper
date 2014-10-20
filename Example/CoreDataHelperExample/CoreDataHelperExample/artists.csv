@@ -1,3 +1,4 @@
-id,name,genre
-100,Yes,"Progressive Rock"
-101,"Iron Maiden","Heavy Metal"
+id,name,genre,members
+100,Yes,"Progressive Rock",5
+101,"Iron Maiden","Heavy Metal",6
+102,"Deep Purple","Hard Rock",5

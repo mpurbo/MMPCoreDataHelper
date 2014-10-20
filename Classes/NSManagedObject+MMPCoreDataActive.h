@@ -60,7 +60,11 @@ typedef NS_ENUM(NSInteger, MMPCoreDataErrorCode) {
 #if TARGET_OS_IPHONE
 - (NSFetchedResultsController *)fetchedResultsController;
 #endif
+
 - (NSUInteger)count;
+- (id)min:(NSString *)attributeName;
+- (id)max:(NSString *)attributeName;
+- (id)sum:(NSString *)attributeName;
 
 @end
 

@@ -1,5 +1,9 @@
 # MMPCoreDataHelper CHANGELOG
 
+## 0.8.0
+
+* Add aggregate functions: min, max, sum.
+
 ## 0.7.5
 
 * Add OSX support.

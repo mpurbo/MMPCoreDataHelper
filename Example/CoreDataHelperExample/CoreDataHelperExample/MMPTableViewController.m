@@ -30,12 +30,12 @@
 
 - (void)initDatabase
 {
-    MMPArtist *artist = [[MMPArtist create] update:@{@"id" : @"1", @"name" : @"Daft Punk"}];
+    MMPArtist *artist = [[MMPArtist create] update:@{@"id" : @"1", @"name" : @"Daft Punk", @"members" : @(2)}];
     
     [[MMPAlbum create] update:@{@"id" : @"1-1", @"name" : @"Homework", @"artist" : artist}];
     [[MMPAlbum create] update:@{@"id" : @"1-2", @"name" : @"Discovery", @"artist" : artist}];
     
-    artist = [[MMPArtist create] update:@{@"id" : @"2", @"name" : @"Pink Floyd"}];
+    artist = [[MMPArtist create] update:@{@"id" : @"2", @"name" : @"Pink Floyd", @"members" : @(4)}];
     
     [[MMPAlbum create] update:@{@"id" : @"2-1", @"name" : @"Animal", @"artist" : artist}];
     [[MMPAlbum create] update:@{@"id" : @"2-2", @"name" : @"The Wall", @"artist" : artist}];
@@ -111,6 +111,18 @@
 	if (![[self fetchedResultsController] performFetch:&error]) {
 		NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
 	}
+    
+    NSLog(@"### unfiltered artists' members aggregate: min = %@, max = %@, sum = %@",
+          [[MMPArtist query] min:@"members"],
+          [[MMPArtist query] max:@"members"],
+          [[MMPArtist query] sum:@"members"]);
+    
+    // artists with name that starts with 'D'
+    MMPCoreDataQueryable *artistsD =[[MMPArtist query] where:@"name LIKE %@", @"D*"];
+    NSLog(@"### D artists' members aggregate: min = %@, max = %@, sum = %@",
+          [artistsD min:@"members"],
+          [artistsD max:@"members"],
+          [artistsD sum:@"members"]);
     
     // run some dummy DB operation in background for fun
     dispatch_async(dispatch_queue_create("BkgQ", NULL), ^{

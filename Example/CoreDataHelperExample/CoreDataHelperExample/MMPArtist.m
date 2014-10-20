@@ -13,6 +13,7 @@
 
 @dynamic id;
 @dynamic name;
+@dynamic members;
 @dynamic albums;
 
 @end

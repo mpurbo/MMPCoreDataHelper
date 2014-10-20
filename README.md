@@ -78,6 +78,29 @@ MMPArtist *artist = [[[MMPArtist query]
                                  first];
 ```
 
+Most of the constraint and order construction is derived from [ObjectiveRecord](https://github.com/supermarin/ObjectiveRecord), so please see their documentation for more query patterns.
+
+### Aggregate Attribute Values
+
+The equivalent of SQL's `count`, `min`, `max`, and `sum` is also available as can be seen in the following example:
+```objectivec
+// counting all records
+NSLog(@"Database initialized, %lu artists created", [[MMPArtist query] count]);
+
+// getting minimum, maximum, and sum of attribute "members"
+NSLog(@"### unfiltered artists' members aggregate: min = %@, max = %@, sum = %@",
+          [[MMPArtist query] min:@"members"],
+          [[MMPArtist query] max:@"members"],
+          [[MMPArtist query] sum:@"members"]);
+
+// getting minimum, maximum, and sum of attribute "members" for artists with name that starts with "D"
+MMPCoreDataQueryable *artistsD =[[MMPArtist query] where:@"name LIKE %@", @"D*"];
+NSLog(@"### D artists' members aggregate: min = %@, max = %@, sum = %@",
+      [artistsD min:@"members"],
+      [artistsD max:@"members"],
+      [artistsD sum:@"members"]);
+```
+
 ### Importing Data from CSV File
 
 To import data from CSV file, call `importer` to start building the importer, use `sourceURL` to specify the CSV source URL, `error` to specify code block to be executed on errors, `each` to observe newly imported record, and finally call `import` to start executing.

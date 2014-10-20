@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="13C64" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6244" systemVersion="14A389" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="MMPAlbum" representedClassName="MMPAlbum" syncable="YES">
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
@@ -7,11 +7,12 @@
     </entity>
     <entity name="MMPArtist" representedClassName="MMPArtist" syncable="YES">
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="members" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="albums" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MMPAlbum" inverseName="artist" inverseEntity="MMPAlbum" syncable="YES"/>
     </entity>
     <elements>
-        <element name="MMPArtist" positionX="-9" positionY="36" width="128" height="88"/>
         <element name="MMPAlbum" positionX="-9" positionY="36" width="128" height="88"/>
+        <element name="MMPArtist" positionX="-9" positionY="36" width="128" height="105"/>
     </elements>
 </model>
