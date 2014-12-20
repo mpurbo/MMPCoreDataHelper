@@ -23,7 +23,7 @@ Include the header file in your code:
 ```objc
 #import <MMPCoreDataHelper/MMPCoreDataHelper.h>
 ```
-In general, there is no need for database initialization and you can go right ahead directly using your model object to create and query records. See below for cases that require you to explicitly set names before you start using the library.
+In general, there is no need for database initialization and you can go right ahead directly using your model object to create and query records. See [below](#optional-initialization) for cases that require you to explicitly set names before you start using the library.
 
 ### Create, Update, Delete, Save
 
@@ -76,6 +76,12 @@ NSArray *artists = [[MMPArtist query] all];
 MMPArtist *artist = [[[MMPArtist query]
                                  where:@{@"name" : @"Pink Floyd"}]
                                  first];
+                                 
+// use fetchedResultsController to create NSFetchedResultsController from a query
+self.fetchedResultsController = [[[[MMPAlbum query]
+                                             order:@"artist.name"]
+                                             sectionNameKeyPath:@"artist.name"]
+                                             fetchedResultsController];
 ```
 
 Most of the constraint and order construction is derived from [ObjectiveRecord](https://github.com/supermarin/ObjectiveRecord), so please see their documentation for more query patterns.
@@ -198,7 +204,7 @@ NSEntityDescription *entity = [NSEntityDescription entityForName:@"MyEntity"
 
 ## Documentation
 
-Not currently available, but I'll write documentation as I update the library.
+Not currently available, but I'll write documentation as I update the library. If you have any questions or requests for features, please feel free to contact me or create issues.
 
 ## Contact
 
