@@ -37,7 +37,7 @@ MMPArtist *artist = [[[MMPArtist create]
 // delete record
 [[artist delete] save];
 
-// saving several records once is more efficient, use MMPCoreDataHelper instance to do bulk saving.
+// saving several records once is more efficient, use MMPCoreDataHelper shared instance to do bulk saving.
 
 [[MMPArtist create] update:@{@"id" : @"1", @"name" : @"Daft Punk"}];
 [[MMPArtist create] update:@{@"id" : @"2", @"name" : @"Pink Floyd"}];
@@ -59,7 +59,6 @@ Once a query is constructed, there are several functions to actually produce res
 
 Following code shows how to combine these functions to construct queries and execute it:
 ```objc
-
 // fetch all artists
 NSArray *artists = [[MMPArtist query] all];
 
@@ -77,14 +76,38 @@ MMPArtist *artist = [[[MMPArtist query]
                                  where:@{@"name" : @"Pink Floyd"}]
                                  first];
                                  
+// many ways to construct where constraint
+artist = [[[MMPArtist query]
+                      where:@{@"name == 'Pink Floyd'"}]
+                      first];
+                      
+artists = [[[MMPArtist query]
+                       where:@{@"name == 'Pink Floyd' OR name == 'Led Zeppelin'"}]
+                       all];
+                       
+// or even use NSPredicate if you feel like it
+NSPredicate *predicate = ...
+artists = [[[MMPArtist query]
+                       where:predicate
+                       all];
+                                 
 // use fetchedResultsController to create NSFetchedResultsController from a query
 self.fetchedResultsController = [[[[MMPAlbum query]
                                              order:@"artist.name"]
                                              sectionNameKeyPath:@"artist.name"]
                                              fetchedResultsController];
 ```
-
-Most of the constraint and order construction is derived from [ObjectiveRecord](https://github.com/supermarin/ObjectiveRecord), so please see their documentation for more query patterns.
+Here's some examples on how to construct more complex ordering:
+```objc
+artists = [[[MMPArtist query] 
+                       order:@"name ASC, members DESC"
+                       all];
+                       
+// same ordering different way
+artists = [[[MMPArtist query] 
+                       order:@{@"name" : @"ASC", @"members" : @"DESC"}
+                       all];
+```
 
 ### Aggregate Attribute Values
 
