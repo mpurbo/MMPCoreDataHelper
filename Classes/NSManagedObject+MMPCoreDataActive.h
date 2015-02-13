@@ -114,7 +114,7 @@ typedef NS_ENUM(NSInteger, MMPCoreDataErrorCode) {
 
 - (instancetype)update:(NSDictionary *)data;
 - (instancetype)delete;
-- (void)save;
+- (instancetype)save;
 
 /**---------------------------------------------------------------------------------------
  * @name Data import

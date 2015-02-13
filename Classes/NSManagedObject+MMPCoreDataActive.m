@@ -439,9 +439,10 @@
     return self;
 }
 
-- (void)save
+- (instancetype)save
 {
     [MMPCoreDataHelper save];
+    return self;
 }
 
 + (MMPCoreDataImportable *)importer

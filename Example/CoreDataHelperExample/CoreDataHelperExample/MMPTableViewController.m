@@ -134,11 +134,12 @@
         for (int i = 0; i < 5; i++) {
             // add a new album every 2 seconds
             sleep(2);
-            [[[MMPAlbum create]
-               update:@{@"id" : [NSString stringWithFormat:@"dummy-%d", i],
-                        @"name" : [NSString stringWithFormat:@"Dummy %d", i],
-                        @"artist" : artist}]
-               save];
+            MMPAlbum *newAlbum = [[[MMPAlbum create]
+                                             update:@{@"id" : [NSString stringWithFormat:@"dummy-%d", i],
+                                                      @"name" : [NSString stringWithFormat:@"Dummy %d", i],
+                                                      @"artist" : artist}]
+                                             save];
+            NSLog(@"New album id = %@ saved", newAlbum.id);
             // table view should be automatically refreshed by now
         }
         

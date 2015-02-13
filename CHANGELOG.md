@@ -1,8 +1,12 @@
 # MMPCoreDataHelper CHANGELOG
 
+## 0.8.1
+
+* `save` returning instancetype for more logical chaining.
+
 ## 0.8.0
 
-* Add aggregate functions: min, max, sum.
+* Add aggregate functions: `min`, `max`, `sum`.
 
 ## 0.7.5
 
