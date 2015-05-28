@@ -427,9 +427,78 @@
     [MMPCoreDataHelper deleteObjectsOfEntity:[self class]];
 }
 
+- (void)setValueFromString:(NSString *)value forKey:(NSString *)key {
+    
+    NSEntityDescription *entityDescription = [MMPCoreDataHelper entityDescriptionOf:[self class]];
+    NSDictionary *attributesByName = [entityDescription attributesByName];
+    
+    NSString *lowercaseValue = [value lowercaseString];
+    NSAttributeDescription *attributeDescription = [attributesByName objectForKey:key];
+    
+    NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
+    [nf setNumberStyle:NSNumberFormatterDecimalStyle];
+    
+    switch([attributeDescription attributeType]) {
+        case NSInteger64AttributeType:
+        case NSInteger32AttributeType:
+        case NSInteger16AttributeType:
+            [self setValue:[nf numberFromString:value]
+                    forKey:key];
+            break;
+        case NSDecimalAttributeType:
+            [self setValue:[NSDecimalNumber decimalNumberWithString:value]
+                    forKey:key];
+            break;
+        case NSDoubleAttributeType:
+        case NSFloatAttributeType:
+            [self setValue:[NSNumber numberWithDouble:[value doubleValue]]
+                    forKey:key];
+            break;
+        case NSBooleanAttributeType:
+            [self setValue:[NSNumber numberWithBool:([@"true" isEqualToString:lowercaseValue] ||
+                                                     [@"yes" isEqualToString:lowercaseValue])]
+                    forKey:key];
+            break;
+        // TODO: figure out how to specify date formatter
+        /*
+        case NSDateAttributeType:
+            if (strongSelf.dateFormatter) {
+                if (value && [value length] > 0) {
+                    [obj setValue:[strongSelf.dateFormatter dateFromString:value]
+                           forKey:key];
+                }
+            } else {
+                error = [[NSError alloc] initWithDomain:MMPCoreDataErrorDomain
+                                                   code:MMPCoreDataErrorCodeDateFormatterUnspecified
+                                               userInfo:@{@"invalidFieldName" : key}];
+                if (strongSelf.errorBlock) {
+                    strongSelf.errorBlock(error);
+                } else {
+                    NSLog(@"[ERROR] %@", error);
+                }
+                return;
+            }
+            break;*/
+        default:
+            [self setValue:value forKey:key];
+            break;
+    }
+}
+
+- (void)setValuesForKeysWithDictionaryOfPossibleStringValues:(NSDictionary *)keyedStringValues {
+    for (NSString *key in [keyedStringValues allKeys]) {
+        id rawValue = [keyedStringValues objectForKey:key];
+        if ([rawValue isKindOfClass:[NSString class]]) {
+            [self setValueFromString:rawValue forKey:key];
+        } else {
+            [self setValue:rawValue forKey:key];
+        }
+    }
+}
+
 - (instancetype)update:(NSDictionary *)data
 {
-    [self setValuesForKeysWithDictionary:data];
+    [self setValuesForKeysWithDictionaryOfPossibleStringValues:data];
     return self;
 }
 
