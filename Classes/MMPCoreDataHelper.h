@@ -120,6 +120,11 @@ extern NSString * const MMPDataAccessDidSaveNotification;
  */
 + (void)save;
 
+/**
+ * Undo all changes.
+ */
++ (void)rollback;
+
 /**---------------------------------------------------------------------------------------
  * @name Create, update, and delete
  *  ---------------------------------------------------------------------------------------

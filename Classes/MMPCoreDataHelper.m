@@ -269,6 +269,10 @@ static NSString * const MP_PERTHREADKEY_MOC = @"MPPerThreadManagedObjectContext"
     [[MMPCoreDataHelper instance] _save];
 }
 
++ (void)rollback {
+    [[[MMPCoreDataHelper instance] managedObjectContext] rollback];
+}
+
 #pragma mark - Create, update, and delete
 
 - (id)_createObjectOfEntity:(Class)entityClass

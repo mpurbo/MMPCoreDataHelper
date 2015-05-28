@@ -1,5 +1,10 @@
 # MMPCoreDataHelper CHANGELOG
 
+## 0.8.2
+
+* Add `rollback`
+* Automatic conversion from string value to appropriate CoreData data type.
+
 ## 0.8.1
 
 * `save` returning instancetype for more logical chaining.
