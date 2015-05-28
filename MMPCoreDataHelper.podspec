@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = "MMPCoreDataHelper"
-  s.version          = "0.8.1"
+  s.version          = "0.8.2"
   s.summary          = "A straightforward CoreData wrapper"
   s.description      = <<-DESC
                        A lightweight helper library for common CoreData tasks providing data access pattern inspired by Active Record, LINQ, and functional programming.
@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
                        * Active Record, LINQ-like functional wrapper for common tasks.
                        * Automatic configuration and initialization (by convention over configuration) by default but manual configuration is still possible.
                        * Import data directly from CSV file.
-                       * Get notified on errors and other CoreData events using NSNotificationCenter.                       
+                       * Get notified on errors and other CoreData events using NSNotificationCenter.
                        DESC
   s.homepage         = "https://github.com/mpurbo/MMPCoreDataHelper"
   s.license          = 'MIT'
@@ -24,5 +24,5 @@ Pod::Spec.new do |s|
   s.source_files     = 'Classes'
   s.framework        = 'CoreData'
   s.dependency 'MMPCSVUtil'
-  s.requires_arc     = true  
+  s.requires_arc     = true
 end
