@@ -78,11 +78,15 @@ MMPArtist *artist = [[[MMPArtist query]
                                  
 // many ways to construct where constraint
 artist = [[[MMPArtist query]
-                      where:@{@"name == 'Pink Floyd'"}]
+                      where:@"name == 'Pink Floyd'"]
                       first];
                       
 artists = [[[MMPArtist query]
-                       where:@{@"name == 'Pink Floyd' OR name == 'Led Zeppelin'"}]
+                       where:@"name == 'Pink Floyd' OR name == 'Led Zeppelin'"]
+                       all];
+                       
+artists = [[[MMPArtist query]
+                       where:@"name == %@ OR name == %@", @"Queen", @"Gojira"]
                        all];
                        
 // or even use NSPredicate if you feel like it
